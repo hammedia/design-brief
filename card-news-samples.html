@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design MD 카드뉴스 샘플</title>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --paper: #fffefa;
+      --ink: #191714;
+      --muted: #625b52;
+      --line: #ded7cb;
+      --navy: #17324d;
+      --green: #176b52;
+      --gold: #c69a2b;
+      --ivory: #f7efe1;
+      --sky: #7eb5e8;
+      --red: #b43b3b;
+      --font: "Pretendard", "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, sans-serif;
+      --serif: "Noto Serif KR", Georgia, serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      line-height: 1.55;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 60px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .hero-main,
+    .side-note,
+    .sample-panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 45px rgba(25, 23, 20, 0.08);
+    }
+
+    .hero-main {
+      padding: 24px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      min-height: 28px;
+      align-items: center;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #eef4f1;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      max-width: 760px;
+      font-size: clamp(30px, 5vw, 52px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .hero-main p {
+      margin: 0;
+      max-width: 740px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .side-note {
+      padding: 18px;
+    }
+
+    .side-note strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .side-note p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .sample-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .sample-panel {
+      padding: 14px;
+    }
+
+    .panel-head {
+      min-height: 74px;
+      margin-bottom: 12px;
+    }
+
+    .panel-head strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .panel-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+
+    .preview-box {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .sample-card {
+      width: 1080px;
+      height: 1350px;
+      transform: scale(var(--card-scale, 0.31));
+      transform-origin: top left;
+      position: relative;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .download-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .download-btn,
+    .open-btn {
+      display: inline-flex;
+      min-height: 40px;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      text-decoration: none;
+      color: var(--ink);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .download-btn {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+
+    .card-a,
+    .card-b {
+      background:
+        linear-gradient(145deg, rgba(23, 50, 77, 0.07), transparent 38%),
+        linear-gradient(0deg, #fffefa, #f8f1e6);
+      color: var(--navy);
+      padding: 76px;
+    }
+
+    .card-a::before,
+    .card-b::before {
+      content: "";
+      position: absolute;
+      inset: 38px;
+      border: 2px solid rgba(23, 50, 77, 0.14);
+      border-radius: 34px;
+      pointer-events: none;
+    }
+
+    .card-label {
+      display: inline-flex;
+      align-items: center;
+      min-height: 42px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: var(--navy);
+      color: #fff;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .card-title {
+      margin: 34px 0 0;
+      font-size: 76px;
+      line-height: 1.04;
+      letter-spacing: 0;
+      font-weight: 950;
+    }
+
+    .card-title .gold { color: var(--gold); }
+
+    .card-sub {
+      margin-top: 24px;
+      max-width: 750px;
+      color: #435568;
+      font-size: 31px;
+      line-height: 1.45;
+      font-weight: 650;
+    }
+
+    .token-strip {
+      display: flex;
+      gap: 14px;
+      margin-top: 38px;
+      flex-wrap: wrap;
+    }
+
+    .token {
+      min-height: 52px;
+      padding: 12px 18px;
+      border-radius: 14px;
+      background: #fff;
+      border: 2px solid rgba(23, 50, 77, 0.12);
+      color: var(--navy);
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .design-system-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-top: 54px;
+    }
+
+    .system-card {
+      min-height: 190px;
+      padding: 28px;
+      border-radius: 28px;
+      background: #fff;
+      border: 2px solid rgba(23, 50, 77, 0.12);
+      box-shadow: 0 18px 40px rgba(23, 50, 77, 0.08);
+    }
+
+    .system-card strong {
+      display: block;
+      margin-bottom: 14px;
+      color: var(--green);
+      font-size: 28px;
+    }
+
+    .system-card span {
+      display: block;
+      color: #536272;
+      font-size: 24px;
+      line-height: 1.45;
+      font-weight: 650;
+    }
+
+    .layout-map {
+      position: absolute;
+      left: 76px;
+      right: 76px;
+      bottom: 72px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 0.8fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .map-item {
+      min-height: 138px;
+      border-radius: 24px;
+      background: rgba(23, 50, 77, 0.08);
+      border: 2px dashed rgba(23, 50, 77, 0.24);
+      padding: 22px;
+      color: var(--navy);
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .card-b {
+      background:
+        radial-gradient(circle at 78% 14%, rgba(198, 154, 43, 0.18), transparent 25%),
+        linear-gradient(160deg, #fffefa 0%, #f6f0e6 58%, #edf5f1 100%);
+    }
+
+    .card-b .card-title {
+      width: 820px;
+      font-size: 72px;
+    }
+
+    .output-showcase {
+      display: grid;
+      grid-template-columns: 1fr 0.72fr;
+      gap: 24px;
+      align-items: stretch;
+      margin-top: 52px;
+    }
+
+    .mock-thumb,
+    .mock-stack-card {
+      background: #fff;
+      border: 2px solid rgba(23, 50, 77, 0.10);
+      box-shadow: 0 16px 40px rgba(23, 50, 77, 0.08);
+    }
+
+    .mock-thumb {
+      min-height: 320px;
+      border-radius: 30px;
+      padding: 26px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      background:
+        linear-gradient(135deg, rgba(23, 50, 77, 0.09), rgba(198, 154, 43, 0.08)),
+        #fff;
+    }
+
+    .mock-tag {
+      justify-self: start;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: var(--navy);
+      color: #fff;
+      font-size: 21px;
+      font-weight: 950;
+    }
+
+    .mock-question {
+      align-self: center;
+      color: var(--navy);
+      font-size: 56px;
+      line-height: 1.05;
+      font-weight: 950;
+      letter-spacing: 0;
+    }
+
+    .mock-rule {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      color: #536272;
+      font-size: 21px;
+      font-weight: 800;
+    }
+
+    .rule-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .mock-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .mock-stack-card {
+      min-height: 151px;
+      border-radius: 26px;
+      padding: 22px;
+    }
+
+    .mock-stack-card strong {
+      display: block;
+      color: var(--green);
+      font-size: 23px;
+      margin-bottom: 8px;
+    }
+
+    .mock-stack-card span {
+      display: block;
+      color: var(--navy);
+      font-size: 28px;
+      line-height: 1.18;
+      font-weight: 900;
+    }
+
+    .system-flow {
+      display: grid;
+      grid-template-columns: 1fr 42px 1fr 42px 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 44px;
+    }
+
+    .flow-node {
+      min-height: 120px;
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(23, 50, 77, 0.08);
+      border: 2px solid rgba(23, 50, 77, 0.13);
+      color: var(--navy);
+      text-align: center;
+      font-size: 24px;
+      font-weight: 950;
+    }
+
+    .flow-arrow {
+      color: var(--gold);
+      font-size: 42px;
+      font-weight: 950;
+      text-align: center;
+    }
+
+    .card-b .footer-rule {
+      position: absolute;
+      left: 76px;
+      right: 76px;
+      bottom: 82px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 24px;
+      border-top: 3px solid rgba(23, 50, 77, 0.16);
+      color: #536272;
+      font-size: 23px;
+      font-weight: 750;
+    }
+
+    .card-c {
+      padding: 52px;
+      background:
+        repeating-linear-gradient(45deg, rgba(255, 0, 153, 0.12), rgba(255, 0, 153, 0.12) 18px, transparent 18px, transparent 36px),
+        linear-gradient(120deg, #fff45e, #78ffbd 45%, #ff8ae2);
+      color: #141414;
+    }
+
+    .chaos-tag {
+      display: inline-flex;
+      padding: 7px 16px;
+      background: #ff2b2b;
+      color: #fff;
+      border: 4px solid #000;
+      transform: rotate(-4deg);
+      font-size: 30px;
+      font-weight: 950;
+    }
+
+    .chaos-title {
+      margin: 26px 0 0;
+      font-size: 82px;
+      line-height: 0.92;
+      font-weight: 950;
+      letter-spacing: 0;
+      text-shadow: 7px 7px 0 #fff;
+    }
+
+    .chaos-title span {
+      display: block;
+      color: #7823ff;
+      font-family: Georgia, serif;
+      font-style: italic;
+    }
+
+    .chaos-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 42px;
+    }
+
+    .chaos-box {
+      min-height: 166px;
+      padding: 18px;
+      border: 5px solid #111;
+      border-radius: 6px 36px 6px 28px;
+      background: rgba(255, 255, 255, 0.72);
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.12;
+    }
+
+    .chaos-box:nth-child(2) {
+      background: #1f1f1f;
+      color: #fff;
+      transform: translateY(35px);
+    }
+
+    .chaos-box:nth-child(3) {
+      background: #fffb;
+      color: #0a7a4e;
+      transform: rotate(2deg);
+    }
+
+    .chaos-box:nth-child(4) {
+      background: #fff;
+      color: #ff2b2b;
+      transform: rotate(-3deg) translateY(18px);
+    }
+
+    .chaos-footer {
+      position: absolute;
+      left: 52px;
+      right: 52px;
+      bottom: 52px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .chaos-chip {
+      min-height: 70px;
+      padding: 12px;
+      border: 3px solid #111;
+      background: #fff;
+      font-size: 22px;
+      font-weight: 950;
+      text-align: center;
+    }
+
+    .chaos-chip:nth-child(2) { background: #ff2b2b; color: #fff; transform: translateY(-24px); }
+    .chaos-chip:nth-child(3) { background: #2635ff; color: #fff; transform: rotate(5deg); }
+
+    @media (max-width: 980px) {
+      .hero,
+      .sample-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-main">
+        <div class="eyebrow">홍보 전 검수용</div>
+        <h1>DESIGN.md가 있으면 카드뉴스가 어떻게 달라질까</h1>
+        <p>같은 주제를 두고 디자인 기준 문서가 있는 카드 2장과 기준 없이 만든 카드 1장을 비교합니다. 배포 전 홍보 이미지 레퍼런스로 쓰기 위한 샘플입니다.</p>
+      </div>
+      <aside class="side-note">
+        <strong>구성</strong>
+        <p>1번과 2번은 색상, 타이포, 여백, 컴포넌트 규칙이 같은 계열로 묶입니다. 3번은 기준이 없어 톤과 우선순위가 흔들리는 예시입니다.</p>
+      </aside>
+    </section>
+
+    <section class="sample-grid" aria-label="카드뉴스 샘플 3장">
+      <article class="sample-panel">
+        <div class="panel-head">
+          <strong>01. DESIGN.md 있음</strong>
+          <p>색상 토큰, 제목 규칙, 컴포넌트가 한 기준으로 정리된 카드.</p>
+        </div>
+        <div class="preview-box">
+          <div class="sample-card card-a" id="card-01">
+            <div class="card-label">DESIGN.md 있음</div>
+            <h2 class="card-title">우리 채널의<br><span class="gold">디자인 기준</span>을<br>먼저 잡습니다</h2>
+            <p class="card-sub">색상, 폰트, 썸네일, 자막 화면까지 같은 톤으로 반복 제작하기 위한 설계도입니다.</p>
+            <div class="token-strip">
+              <span class="token">Trust Navy</span>
+              <span class="token">Warm Ivory</span>
+              <span class="token">Accent Gold</span>
+            </div>
+            <div class="design-system-box">
+              <div class="system-card"><strong>Color</strong><span>강조색과 배경색을 먼저 고정</span></div>
+              <div class="system-card"><strong>Type</strong><span>제목, 본문, 자막 위계 정리</span></div>
+              <div class="system-card"><strong>Layout</strong><span>여백과 정보 순서 유지</span></div>
+              <div class="system-card"><strong>Rules</strong><span>쓰지 말아야 할 표현과 이미지 기록</span></div>
+            </div>
+            <div class="layout-map">
+              <div class="map-item">Title zone</div>
+              <div class="map-item">Visual</div>
+              <div class="map-item">CTA</div>
+            </div>
+          </div>
+        </div>
+        <div class="download-row">
+          <a class="download-btn" href="assets/card-news-samples/design-md-card-01.png" download>PNG 다운로드</a>
+        </div>
+      </article>
+
+      <article class="sample-panel">
+        <div class="panel-head">
+          <strong>02. DESIGN.md 있음</strong>
+          <p>하나의 기준이 여러 산출물로 이어지는 카드.</p>
+        </div>
+        <div class="preview-box">
+          <div class="sample-card card-b" id="card-02">
+            <div class="card-label">DESIGN.md 하나로</div>
+            <h2 class="card-title">썸네일·자막·카드뉴스가<br>같은 톤으로 이어집니다</h2>
+            <p class="card-sub">AI에게 매번 길게 설명하지 않아도, 기준 문서가 색상·글자·레이아웃을 잡아줍니다.</p>
+            <div class="output-showcase">
+              <div class="mock-thumb">
+                <div class="mock-tag">YouTube Thumbnail</div>
+                <div class="mock-question">같은 색,<br>같은 제목감</div>
+                <div class="mock-rule"><span class="rule-dot"></span><span>Trust Navy + Warm Ivory</span></div>
+              </div>
+              <div class="mock-stack">
+                <div class="mock-stack-card"><strong>Caption</strong><span>자막 박스도<br>같은 규칙</span></div>
+                <div class="mock-stack-card"><strong>Card News</strong><span>정보 카드도<br>같은 위계</span></div>
+              </div>
+            </div>
+            <div class="system-flow">
+              <div class="flow-node">색상 토큰</div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node">글자 위계</div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-node">반복 제작</div>
+            </div>
+            <div class="footer-rule">
+              <span>Design Guide Draft</span>
+              <span>hammedia.github.io/design-brief</span>
+            </div>
+          </div>
+        </div>
+        <div class="download-row">
+          <a class="download-btn" href="assets/card-news-samples/design-md-card-02.png" download>PNG 다운로드</a>
+        </div>
+      </article>
+
+      <article class="sample-panel">
+        <div class="panel-head">
+          <strong>03. DESIGN.md 없음</strong>
+          <p>색, 글자, 강조 기준이 매번 바뀌어 메시지가 흔들리는 카드.</p>
+        </div>
+        <div class="preview-box">
+          <div class="sample-card card-c" id="card-03">
+            <div class="chaos-tag">DESIGN.md 없음</div>
+            <h2 class="chaos-title">오늘은<br><span>이 느낌?</span><br>내일은 다른 느낌!</h2>
+            <div class="chaos-grid">
+              <div class="chaos-box">색상 기준이 없음</div>
+              <div class="chaos-box">폰트 크기가 매번 바뀜</div>
+              <div class="chaos-box">무엇을 강조할지 불명확</div>
+              <div class="chaos-box">AI에게 설명할 말이 길어짐</div>
+            </div>
+            <div class="chaos-footer">
+              <div class="chaos-chip">Premium?</div>
+              <div class="chaos-chip">Trust?</div>
+              <div class="chaos-chip">Cute?</div>
+            </div>
+          </div>
+        </div>
+        <div class="download-row">
+          <a class="download-btn" href="assets/card-news-samples/no-design-md-card-03.png" download>PNG 다운로드</a>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

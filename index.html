@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>우리 채널 디자인 가이드 만들기</title>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --paper: #fffefa;
+      --ink: #191714;
+      --muted: #625b52;
+      --line: #ded7cb;
+      --navy: #17324d;
+      --green: #176b52;
+      --gold: #c69a2b;
+      --red: #b43b3b;
+      --field: #ffffff;
+      --soft: #eef4f1;
+      --shadow: 0 18px 50px rgba(25, 23, 20, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+      line-height: 1.55;
+    }
+
+    button, input, textarea {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 18px 0 56px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 14px;
+      align-items: stretch;
+      margin-bottom: 14px;
+    }
+
+    .intro, .status-panel, .section, .action-panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .intro {
+      padding: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 11px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .intro p {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .notice-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .notice {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .guide-block {
+      min-height: 138px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .guide-block strong {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 14px;
+    }
+
+    .guide-block p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .sample-preview {
+      margin: 0 0 14px;
+      padding: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .sample-preview-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-end;
+      margin-bottom: 14px;
+    }
+
+    .sample-preview-title {
+      margin: 0 0 4px;
+      font-size: 19px;
+      line-height: 1.3;
+    }
+
+    .sample-preview-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .sample-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .sample-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .sample-card-link {
+      display: block;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .sample-thumb {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      display: block;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .sample-caption {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .status-panel {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .status-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .progress {
+      height: 8px;
+      overflow: hidden;
+      background: #ece6dc;
+      border-radius: 999px;
+    }
+
+    .progress span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--gold));
+      transition: width 160ms ease;
+    }
+
+    .status-text {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .form-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .section {
+      padding: 18px;
+    }
+
+    .section h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    .question {
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .question:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .question-head {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 9px;
+    }
+
+    .question-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .question-id {
+      color: var(--green);
+      font-weight: 900;
+      margin-right: 5px;
+    }
+
+    .required {
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .hint {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .choice-guide {
+      display: inline-flex;
+      margin: 0 0 10px;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    textarea, input[type="text"], input[type="password"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--field);
+      color: var(--ink);
+      padding: 10px 11px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 108px;
+      resize: vertical;
+    }
+
+    textarea:focus, input[type="text"]:focus, input[type="password"]:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(23, 107, 82, 0.12);
+    }
+
+    .option-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      min-height: 40px;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .option input[type="checkbox"], .option input[type="radio"] {
+      margin-top: 4px;
+      accent-color: var(--green);
+    }
+
+    .option-body {
+      flex: 1;
+      min-width: 0;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .detail-input {
+      margin-top: 7px;
+    }
+
+    .table-question {
+      display: grid;
+      gap: 8px;
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+    }
+
+    .table-row.two-col {
+      grid-template-columns: 150px minmax(0, 1fr);
+    }
+
+    .row-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .action-panel {
+      position: sticky;
+      top: 12px;
+      padding: 16px;
+    }
+
+    .action-panel h2 {
+      margin: 0 0 7px;
+      font-size: 18px;
+    }
+
+    .action-panel p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .path-box {
+      display: grid;
+      gap: 10px;
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .path-box:first-of-type {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #fff;
+      background: var(--navy);
+      font-weight: 850;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .btn.secondary {
+      background: var(--green);
+    }
+
+    .btn.light {
+      color: var(--ink);
+      background: #fff;
+      border-color: var(--line);
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .api-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .api-label-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    .help-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--green);
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .small-note a {
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .api-inline-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border: 1px solid rgba(23, 107, 82, 0.32);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--green);
+      font-size: inherit;
+      font-weight: 900;
+      line-height: 1.25;
+      text-underline-offset: 3px;
+      text-decoration: none;
+    }
+
+    .api-inline-link::after {
+      content: "↗";
+      margin-left: 6px;
+      font-size: 12px;
+    }
+
+    .preview {
+      display: none;
+      margin-top: 10px;
+      max-height: 360px;
+      overflow: auto;
+      white-space: pre-wrap;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #161a1d;
+      color: #f7f3e8;
+      padding: 12px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .preview.active {
+      display: block;
+    }
+
+    .toast {
+      margin-top: 10px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      min-height: 18px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(25, 23, 20, 0.45);
+      padding: 20px;
+      z-index: 20;
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .modal-card {
+      width: min(460px, 100%);
+      padding: 18px;
+      border-radius: 8px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .modal-card h2 {
+      margin: 0 0 10px;
+      font-size: 19px;
+    }
+
+    .modal-card ol {
+      margin: 0 0 12px 20px;
+      padding: 0;
+    }
+
+    .modal-card li,
+    .modal-card p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .modal-actions {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .topbar, .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .action-panel {
+        position: static;
+      }
+
+      .option-list, .table-row {
+        grid-template-columns: 1fr;
+      }
+
+      .guide-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sample-preview-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .sample-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="topbar">
+      <div class="intro">
+        <div class="eyebrow">이번 주 무료 디자인 브리프 진행 중</div>
+        <h1>우리 채널 디자인 가이드 만들기</h1>
+        <p>AI로 우리 채널의 디자인 기준을 만들어 드립니다.</p>
+        <div class="guide-grid">
+          <div class="guide-block">
+            <strong>이게 뭔가요</strong>
+            <p>이 질문에 답하면, 우리 채널의 디자인 기준 문서 초안이 만들어집니다. 색상·폰트·썸네일·영상 화면을 늘 같은 톤으로 만들게 해주는 설계도입니다.</p>
+          </div>
+          <div class="guide-block">
+            <strong>왜 진지하게 답해야 하나요</strong>
+            <p>이 질문지는 실제 디자인 회의에서 쓰는 질문지와 같은 구조입니다. 이렇게 만들어지는 디자인 기준은 보통 수십만~수백만 원짜리 작업입니다. 천천히, 솔직하게 답할수록 결과가 좋아집니다.</p>
+          </div>
+          <div class="guide-block">
+            <strong>이걸로 뭘 하나요</strong>
+            <p>완성된 문서를 AI나 디자이너에게 건네면, 썸네일·영상 자막·카드뉴스를 모두 같은 디자인으로 만들 수 있습니다.</p>
+          </div>
+        </div>
+        <div class="notice-row">
+          <span class="notice">서버 저장 없음</span>
+          <span class="notice">Gemini 키는 브라우저 메모리에서만 사용</span>
+          <span class="notice">키 없이 ZIP으로 받기 가능</span>
+        </div>
+      </div>
+      <aside class="status-panel">
+        <div>
+          <div class="status-label">작성 진행률</div>
+          <h2 id="progress-count">0 / 0</h2>
+        </div>
+        <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+        <div class="status-text" id="status-text">필수 항목을 채우면 다운로드와 생성이 쉬워집니다.</div>
+      </aside>
+    </section>
+
+    <section class="sample-preview" aria-label="디자인 가이드 결과 예시">
+      <div class="sample-preview-head">
+        <div>
+          <h2 class="sample-preview-title">먼저 결과 예시를 보고 시작하세요</h2>
+          <p class="sample-preview-copy">디자인 기준이 있으면 색상·글자·썸네일·카드뉴스 톤이 어떻게 맞춰지는지 볼 수 있습니다.</p>
+        </div>
+        <a class="sample-link" href="card-news-samples.html">샘플 크게 보기</a>
+      </div>
+      <div class="sample-cards">
+        <a class="sample-card-link" href="card-news-samples.html">
+          <img class="sample-thumb" src="assets/card-news-samples/design-md-card-01.png" alt="DESIGN.md가 있는 카드뉴스 샘플 1">
+          <span class="sample-caption">DESIGN.md 있음 · 기준 만들기</span>
+        </a>
+        <a class="sample-card-link" href="card-news-samples.html">
+          <img class="sample-thumb" src="assets/card-news-samples/design-md-card-02.png" alt="DESIGN.md가 있는 카드뉴스 샘플 2">
+          <span class="sample-caption">DESIGN.md 있음 · 같은 톤으로 확장</span>
+        </a>
+        <a class="sample-card-link" href="card-news-samples.html">
+          <img class="sample-thumb" src="assets/card-news-samples/no-design-md-card-03.png" alt="DESIGN.md 없이 만든 카드뉴스 비교 샘플">
+          <span class="sample-caption">DESIGN.md 없음 · 기준이 흔들림</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="form-stack" id="form-root"></div>
+
+      <aside class="action-panel">
+        <h2>완료 후 선택</h2>
+        <p>답변은 이 브라우저 안에서만 처리됩니다. 채널명을 적어두면 ZIP 파일명이 보기 좋게 정리됩니다.</p>
+        <div class="path-box">
+          <strong>채널명</strong>
+          <input type="text" id="channel-name" data-base-field="채널명 / 클라이언트명" placeholder="예: 오늘의 투자노트 / 우리 브랜드 채널" />
+        </div>
+
+        <div class="path-box">
+          <strong>키 없이 파일로 받기</strong>
+          <p>사용법.txt와 AI에 붙여넣을 답변+프롬프트.md를 ZIP으로 받습니다.</p>
+          <button class="btn secondary" type="button" id="download-brief-btn">키 없이 ZIP 받기</button>
+        </div>
+
+        <div class="path-box">
+          <strong>경로 A · 여기서 바로 만들기</strong>
+          <p>Gemini API 키를 입력하면 DESIGN.md RAW DRAFT를 바로 생성합니다.</p>
+          <div class="api-row">
+            <div class="api-label-row">
+              <span>Gemini API 키 입력 (무료 발급)</span>
+              <button class="help-btn" type="button" id="api-help-btn" aria-label="Gemini API 키 발급 안내">?</button>
+              <a class="api-inline-link" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio에서 무료 Gemini API 키 발급하기</a>
+            </div>
+            <input id="gemini-key" type="password" autocomplete="off" spellcheck="false" placeholder="Gemini API 키" />
+            <button class="btn" type="button" id="generate-btn">여기서 만들기</button>
+            <button class="btn light" type="button" id="download-brief-btn-inline">키 없이 파일로 받기</button>
+          </div>
+          <div class="small-note">
+            키를 발급받은 뒤 이 화면으로 돌아와 입력창에 붙여넣으면 됩니다.
+          </div>
+          <pre class="preview" id="design-preview"></pre>
+          <button class="btn light" type="button" id="tally-btn">원하시면 연락처 남기기</button>
+          <button class="btn secondary" type="button" id="download-design-btn" disabled>디자인가이드 ZIP 다운로드</button>
+        </div>
+
+        <div class="toast" id="toast"></div>
+      </aside>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="api-help-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="api-help-title">
+      <h2 id="api-help-title">무료로 발급받는 법 (1분)</h2>
+      <ol>
+        <li>aistudio.google.com 접속 (구글 로그인)</li>
+        <li>"Create API key" 클릭</li>
+        <li>만들어진 키를 복사해서 여기 붙여넣기</li>
+      </ol>
+      <p>완전 무료입니다. 키는 이 브라우저에만 쓰이고 저장되지 않습니다.</p>
+      <div class="modal-actions">
+        <a class="btn secondary" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio에서 키 발급하기</a>
+        <button class="btn light" type="button" id="api-help-close">닫고 키 붙여넣기</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const GEMINI_MODEL = "gemini-2.5-flash";
+    const TALLY_URL = "https://tally.so/r/Y5kVV6";
+    const CONTACT_LABEL = "이메일 hammedia002@gmail.com 또는 홈페이지 hammedia.github.io/hammedia";
+
+    const BASE_FIELDS = [
+      { label: "채널명 / 클라이언트명", inputId: "channel-name", fallback: "" },
+      { label: "담당자 이름", fallback: "" },
+      { label: "작성일", fallback: todayIso() }
+    ];
+
+    const SECTIONS = [
+      {
+        number: 1,
+        title: "채널·브랜드 정체성",
+        questions: [
+          textQ("1-1", "핵심 목적", true, "예: 복잡한 주제를 쉽게 정리해서, 시청자가 더 빠르게 이해하고 다음 행동을 결정하도록 돕는다."),
+          textQ("1-2", "한 문장 포지셔닝", true, "예: 바쁜 실무자에게 꼭 필요한 정보를 짧고 명확하게 정리해 주는 채널."),
+          selectQ("1-3", "채널 분야", true, ["의료 / 건강", "성형 / 미용", "무속 / 운세", "재테크 / 부동산", "교육 / 강의", "라이프스타일", "오디오 / 음악", "IT / 테크", "커머스 / 제품 리뷰", "엔터테인먼트", "기타: ___"]),
+          selectQ("1-4", "콘텐츠 형태", true, ["유튜브 영상 (일반)", "유튜브 Shorts", "카드뉴스", "슬라이드 / PPT", "썸네일", "Threads / SNS 포스트", "PDF 강의안", "인포그래픽", "기타: ___"]),
+          textQ("1-5", "콘텐츠 성공 기준", true, "예: 시청자가 제목에서 기대한 답을 얻고, 저장하거나 다시 찾아보고 싶다고 느끼면 성공이다."),
+          textQ("1-6", "경쟁 채널 / 비교 대상", false, "예: 비슷한 분야에서 신뢰감 있게 보이는 채널, 또는 피하고 싶은 과장 광고형 채널.")
+        ]
+      },
+      {
+        number: 2,
+        title: "타깃 시청자",
+        questions: [
+          tableQ("2-1", "주요 대상", true, ["항목", "답변"], [["연령대", "예: 30~45세"], ["성별", ""], ["직업 / 상황", "예: 직장인, 주부, 창업자"], ["관심사", ""], ["지식 수준", "완전 초보 / 어느 정도 관심 있음 / 실무 경험 있음 / 전문가"]]),
+          selectQ("2-2", "시청자가 느껴야 할 감정", true, ["쉽게 이해된다", "믿음이 간다", "따뜻하다", "전문적이다", "재미있다", "차분하다", "고급스럽다", "동기부여된다", "기타: ___"], false, "", "최대 3개"),
+          textQ("2-3", "절대 주면 안 되는 느낌", false, "예: 너무 딱딱함, 너무 유치함, 너무 복잡함, 너무 가벼움, 광고처럼 보이는 느낌.")
+        ]
+      },
+      {
+        number: 3,
+        title: "브랜드 톤 & 보이스",
+        questions: [
+          selectQ("3-1", "채널 이미지 키워드", true, ["전문적인", "따뜻한", "친근한", "고급스러운", "차분한", "밝은", "지적인", "단단한", "신뢰감 있는", "감성적인", "현실적인", "에너지 있는", "세련된", "부드러운", "기타: ___"], false, "", "최대 5개"),
+          selectQ("3-2", "말투 방향", false, ["선생님처럼 차근차근", "언니/누나처럼 친근하게", "전문가처럼 명확하게", "코치처럼 힘 있게", "상담사처럼 부드럽게", "기타: ___"]),
+          textQ("3-3", "자주 쓰고 싶은 표현", false, "예: 핵심은 이것입니다. 쉽게 말하면. 오늘 이것만 기억하세요."),
+          textQ("3-4", "피하고 싶은 표현", false, "예: 너무 자극적인 말, 과장된 표현, 어려운 전문용어, 할인 광고처럼 보이는 말."),
+          textQ("3-5", "채널 핵심 키워드", false, "예: 실전 팁, 체크리스트, 비교, 입문자 가이드, 사례, 빠른 이해.")
+        ]
+      },
+      {
+        number: 4,
+        title: "리스크 기준",
+        questions: [
+          selectQ("4-1", "채널 리스크 유형", true, ["의료 정보 포함 (효과 단정 금지)", "성형·시술 관련 (전후 사진 기준 필요)", "금융·투자 관련 (수익 보장 표현 금지)", "법률·세무 관련", "무속·운세 관련 (공포 조장 기준 필요)", "건강기능식품 관련", "특정 제품·서비스 비교 관련", "리스크 없음", "기타: ___"]),
+          textQ("4-2", "반드시 지켜야 할 금지 표현", true, "예: 무조건, 100%, 완치, 반드시 효과, 최고, 1등, 누구나 같은 결과."),
+          textQ("4-3", "반드시 포함해야 할 고정 문구", false, "예: 자세한 내용은 공식 안내를 확인하세요. 결과는 상황에 따라 달라질 수 있습니다.")
+        ]
+      },
+      {
+        number: 5,
+        title: "색상",
+        questions: [
+          textQ("5-0", "기존 디자인에서 유지할 것 / 버릴 것", false, "예: 깔끔한 화면과 브랜드 색은 유지하고, 너무 복잡한 배경과 같은 이미지 반복은 줄이고 싶다."),
+          tableQ("5-1", "대표 색상", true, ["역할", "색상명 또는 HEX"], [["메인 배경", ""], ["강조색", ""], ["경고/주의색", ""], ["기타", ""]], "예: 메인 배경은 깔끔한 흰색, 강조는 신뢰감 있는 남색, 주의 표시는 주황. 잘 모르면 아래 분위기만 골라도 됩니다."),
+          textQ("5-2", "피하고 싶은 색상", false, "예: 네온색, 과한 핑크, 너무 강한 빨강, 어두운 검정 배경."),
+          selectQ("5-3", "배경색 방향", false, ["흰색 중심", "아이보리 / 베이지 중심", "연한 파스텔 배경", "어두운 배경 (다크 계열)", "내용에 따라 유동적", "모름"]),
+          textQ("5-4", "강조색 사용 기준", false, "예: 중요한 질문은 남색, 위험 고지는 주황을 작게, 버튼은 한 가지 색으로 통일.")
+        ]
+      },
+      {
+        number: 6,
+        title: "폰트 & 타이포그래피",
+        questions: [
+          tableQ("6-1", "사용할 폰트", true, ["역할", "폰트명"], [["메인 서체", ""], ["보조 서체", ""], ["강조 / 임팩트 서체", ""], ["말맛 / 포인트 서체", ""]], "예: 정해진 폰트가 없으면 비워두거나, 깔끔한 고딕체 / 세련된 잡지 느낌처럼 적어도 됩니다."),
+          selectQ("6-2", "제목 글자 방향", false, ["크고 강하게", "부드럽고 예쁘게", "차분하고 정돈되게", "귀엽고 친근하게", "고급스럽게"], true),
+          selectQ("6-3", "본문 글자 우선순위", true, ["가독성 최우선", "예쁜 느낌", "전문성", "영상에서 잘 보이는 것", "PDF로 봐도 편한 것"]),
+          selectQ("6-4", "한 화면의 텍스트 밀도", false, ["많은 편 (정보 중심)", "적은 편 (핵심만)", "내용에 따라 다름"])
+        ]
+      },
+      {
+        number: 7,
+        title: "레이아웃 & 구성",
+        questions: [
+          selectQ("7-1", "주요 사용 비율", true, ["16:9 가로형 (유튜브, PPT)", "4:5 세로 카드뉴스", "9:16 Shorts / 릴스", "1:1 정사각형", "여러 비율 모두 필요"]),
+          selectQ("7-2", "자주 쓰는 화면 유형", false, ["제목 화면", "개념 설명 화면", "비교표 화면", "차트 / 그래프 화면", "체크리스트 화면", "요약 화면", "Before / After 화면", "썸네일", "Shorts 커버", "기타: ___"]),
+          selectQ("7-3", "슬라이드 분위기", false, ["여백이 많은 미니멀", "꽉 찬 정보형", "잡지 / 에디토리얼형", "교재형", "유튜브형"]),
+          selectQ("7-4", "전체 디자인 방향", true, ["A. 깔끔하고 전문적인 자료", "B. 따뜻하고 신뢰감 있는 자료", "C. 귀엽고 친근한 자료", "D. 프리미엄하고 고급스러운 자료", "E. 실무 교육처럼 명확하고 단단한 자료", "F. 유튜브 영상처럼 시선을 끄는 자료"], true)
+        ]
+      },
+      {
+        number: 8,
+        title: "컴포넌트 & 그래픽",
+        questions: [
+          selectQ("8-1", "자주 쓰는 컴포넌트", false, ["Info Card (정보 박스)", "Expert Comment Box (전문가 코멘트)", "Checklist (체크리스트)", "Caution / Notice Block (주의 문구)", "Comparison Card (비교표)", "Quote Block (인용구)", "Stat Block (숫자 강조)", "Timeline / Process Block (단계 흐름)", "Before / After Notice", "Thumbnail Text Block", "Shorts Caption Label", "기타: ___"]),
+          selectQ("8-2", "차트 / 도표 스타일", false, ["숫자가 명확하게 보이는 실무형", "부드럽고 예쁜 인포그래픽형", "전문 보고서형", "유튜브 설명용 직관적 형태"]),
+          selectQ("8-3", "아이콘 / 일러스트 스타일", false, ["선으로 된 얇은 아이콘", "둥글고 귀여운 아이콘", "단순한 픽토그램", "고급스러운 미니멀 아이콘", "사용하지 않음"]),
+          selectQ("8-4", "다이어그램 / 설명 그래픽 필요 여부", false, ["예 (채널 유형: ___)", "아니오"])
+        ]
+      },
+      {
+        number: 9,
+        title: "이미지 사용 기준",
+        questions: [
+          selectQ("9-1", "이미지 사용 빈도", false, ["자주 사용", "가끔 사용", "거의 사용 안 함"]),
+          selectQ("9-2", "사용 가능한 이미지 유형", false, ["실제 강사 / 채널 대표 사진", "실제 클라이언트 제공 사진", "감성적인 스톡 이미지", "깔끔한 오브젝트 이미지", "AI 생성 설명 그래픽 (구조, 원리, 흐름 중심)", "없으면 임시 이미지 사용"]),
+          textQ("9-3", "금지 이미지 유형", true, "예: 저작권이 불명확한 이미지, 과장된 전후 비교, 공포감을 주는 이미지, 브랜드와 맞지 않는 이미지.")
+        ]
+      },
+      {
+        number: 10,
+        title: "로고 & 고정 요소",
+        questions: [
+          selectQ("10-1", "로고 현황", false, ["로고 있음", "없음 — 텍스트 워드마크로 대체", "만들 예정"], true, "로고가 있으면, 답변 제출 후 hammedia002@gmail.com 으로 따로 보내주세요."),
+          selectQ("10-2", "모든 자료에 고정으로 들어가야 할 요소", false, ["채널명 / 대표명", "로고", "연락처", "인스타그램", "유튜브 채널명", "홈페이지 주소", "저작권 문구", "주의 / 면책 문구", "기타: ___"])
+        ]
+      },
+      {
+        number: 11,
+        title: "영상 & 자막",
+        questions: [
+          selectQ("11-1", "영상에서 필요한 요소", false, ["오프닝 타이틀", "하단 자막", "이름 / 직함 자막 (Lower Third)", "챕터 타이틀", "핵심 키워드 강조", "그래프 / 도표 삽입", "엔딩 화면", "구독 / 좋아요 안내", "기타: ___"]),
+          selectQ("11-2", "자막 스타일", false, ["흰색 기본 자막", "박스형 자막", "키워드만 크게 강조", "강의용 깔끔한 자막", "감성적인 자막"]),
+          selectQ("11-3", "영상 분위기", false, ["차분한 강의형", "밝은 유튜브형", "전문적인 세미나형", "감성적인 브랜딩형", "빠른 숏폼형"])
+        ]
+      },
+      {
+        number: 12,
+        title: "제작 환경",
+        questions: [
+          selectQ("12-2", "필요한 최종 파일 형태", true, ["HTML", "PDF", "PNG 이미지", "MP4 영상", "PPT", "카드뉴스", "자막 템플릿"], false, "나중에 어떤 결과물로 받고 싶은지 골라주세요.")
+        ]
+      },
+      {
+        number: 13,
+        title: "참고 자료",
+        questions: [
+          selectQ("13-1", "참고 자료", false, ["기존 자료 / PPT / PDF", "기존 영상 링크", "사용 중인 로고 파일", "대표 / 채널 프로필 사진", "좋아하는 디자인 예시 (링크 또는 이미지)", "싫어하는 디자인 예시", "자주 쓰는 차트 / 표 예시", "채널 소개글 또는 홍보 문구"])
+        ]
+      },
+      {
+        number: 14,
+        title: "최우선 기준",
+        questions: [
+          selectQ("14-1", "지금 당장 가장 먼저 만들고 싶은 것", false, ["썸네일 시스템", "카드뉴스 템플릿", "유튜브 영상 화면", "차트 / 그래프 스타일", "PDF 강의안", "전체 브랜드 가이드", "기타: ___"]),
+          selectQ("14-2", "디자인에서 가장 중요한 기준 하나", true, ["가독성 (잘 읽혀야 한다)", "신뢰감 (전문적으로 보여야 한다)", "브랜딩 (채널 이미지와 맞아야 한다)", "이해하기 쉬움", "영상에서 잘 보임", "반복 제작 효율"], true),
+          textQ("14-3", "이 디자인을 봤을 때 사람들이 뭐라고 해주면 좋겠나?", false, "예: 깔끔하다, 전문적이다, 믿음 간다, 광고 같지 않고 설명이 잘 보인다."),
+          textQ("14-4", "마지막으로 꼭 전달하고 싶은 것", false, "예: 썸네일은 깨끗함보다 클릭 이유가 먼저이고, 실제 영상 주제와 맞아야 한다.")
+        ]
+      }
+    ];
+
+    const state = {
+      generatedDesign: ""
+    };
+
+    function textQ(id, heading, required, hint) {
+      return { id, heading, type: "text", required, hint };
+    }
+
+    function selectQ(id, heading, required, options, single, hint, choiceLabel) {
+      return { id, heading, type: "select", required, options, single: !!single, hint: hint || "", choiceLabel: choiceLabel || "" };
+    }
+
+    function tableQ(id, heading, required, columns, rows, hint) {
+      return { id, heading, type: "table", required, columns, rows, hint: hint || "" };
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, function(char) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[char];
+      });
+    }
+
+    function fieldId(id) {
+      return "field-" + id.replace(/[^a-z0-9]/gi, "-");
+    }
+
+    function renderForm() {
+      const root = document.getElementById("form-root");
+      const blocks = [];
+
+      SECTIONS.forEach(function(section) {
+        blocks.push('<section class="section"><h2>섹션 ' + section.number + '. ' + escapeHtml(section.title) + '</h2>');
+        section.questions.forEach(function(q) {
+          blocks.push(renderQuestion(q));
+        });
+        blocks.push('</section>');
+      });
+
+      root.innerHTML = blocks.join("");
+      document.querySelectorAll("input, textarea").forEach(function(node) {
+        node.addEventListener("input", updateProgress);
+        node.addEventListener("change", updateProgress);
+      });
+      updateProgress();
+    }
+
+    function renderQuestion(q) {
+      const required = q.required ? '<span class="required">필수</span>' : "";
+      const guide = q.type === "select" ? '<p class="choice-guide">' + escapeHtml(choiceGuide(q)) + '</p>' : "";
+      let body = "";
+      if (q.type === "text") body = renderTextQuestion(q);
+      if (q.type === "select") body = renderSelectQuestion(q);
+      if (q.type === "table") body = renderTableQuestion(q);
+      return (
+        '<article class="question" data-question-id="' + escapeHtml(q.id) + '">' +
+          '<div class="question-head">' +
+            '<h3 class="question-title"><span class="question-id">' + escapeHtml(q.id) + '</span>' + escapeHtml(q.heading) + '</h3>' +
+            required +
+          '</div>' +
+          (q.hint ? '<p class="hint">' + escapeHtml(q.hint) + '</p>' : "") +
+          guide +
+          body +
+        '</article>'
+      );
+    }
+
+    function renderTextQuestion(q) {
+      return '<textarea id="' + fieldId(q.id) + '" data-qid="' + escapeHtml(q.id) + '" placeholder="' + escapeHtml(q.hint || "답변을 입력하세요") + '"></textarea>';
+    }
+
+    function choiceGuide(q) {
+      if (q.single) return "1개만 선택";
+      return q.choiceLabel || "여러 개 선택 가능";
+    }
+
+    function renderSelectQuestion(q) {
+      const type = q.single ? "radio" : "checkbox";
+      const name = "select-" + q.id;
+      const options = q.options.map(function(option, index) {
+        const needsDetail = option.indexOf("___") >= 0 || option.indexOf("기타:") === 0;
+        const detail = needsDetail
+          ? '<input class="detail-input" type="text" data-detail-for="' + escapeHtml(q.id + "::" + index) + '" placeholder="직접 입력" />'
+          : "";
+        return (
+          '<label class="option">' +
+            '<input type="' + type + '" name="' + escapeHtml(name) + '" data-qid="' + escapeHtml(q.id) + '" data-option-index="' + index + '" value="' + escapeHtml(option) + '" />' +
+            '<span class="option-body">' + escapeHtml(option.replace("___", "직접 입력")) + detail + '</span>' +
+          '</label>'
+        );
+      }).join("");
+      return '<div class="option-list">' + options + '</div>';
+    }
+
+    function renderTableQuestion(q) {
+      const rows = q.rows.map(function(row, rowIndex) {
+        if (q.id === "2-1" && row[0] === "성별") {
+          return (
+            '<div class="table-row two-col">' +
+              '<div class="row-label">성별</div>' +
+              renderGenderOptions(q.id) +
+            '</div>'
+          );
+        }
+        const noteInput = q.columns.length > 2
+          ? '<input type="text" data-table="' + escapeHtml(q.id) + '" data-row="' + rowIndex + '" data-col="2" placeholder="추가 설명" />'
+          : "";
+        const rowClass = q.columns.length > 2 ? "table-row" : "table-row two-col";
+        return (
+          '<div class="' + rowClass + '">' +
+            '<div class="row-label">' + escapeHtml(row[0]) + '</div>' +
+            '<input type="text" data-table="' + escapeHtml(q.id) + '" data-row="' + rowIndex + '" data-col="1" placeholder="' + escapeHtml(row[1] || "") + '" />' +
+            noteInput +
+          '</div>'
+        );
+      }).join("");
+      return '<div class="table-question">' + rows + '</div>';
+    }
+
+    function renderGenderOptions(qid) {
+      return '<div class="option-list">' +
+        ["남성", "여성", "모두", "상관없음"].map(function(option, index) {
+          return (
+            '<label class="option">' +
+              '<input type="checkbox" data-table-gender="' + escapeHtml(qid) + '" data-option-index="' + index + '" value="' + escapeHtml(option) + '" />' +
+              '<span class="option-body">' + escapeHtml(option) + '</span>' +
+            '</label>'
+          );
+        }).join("") +
+      '</div>';
+    }
+
+    function getAllQuestions() {
+      return SECTIONS.flatMap(function(section) { return section.questions; });
+    }
+
+    function isFilled(q) {
+      if (q.type === "text") return !!document.getElementById(fieldId(q.id)).value.trim();
+      if (q.type === "select") return document.querySelectorAll('[data-qid="' + q.id + '"]:checked').length > 0;
+      if (q.type === "table") {
+        return Array.from(document.querySelectorAll('[data-table="' + q.id + '"][data-col="1"]')).some(function(input) {
+          return !!input.value.trim();
+        });
+      }
+      return false;
+    }
+
+    function updateProgress() {
+      const requiredQuestions = getAllQuestions().filter(function(q) { return q.required; });
+      const done = requiredQuestions.filter(isFilled).length;
+      const total = requiredQuestions.length;
+      document.getElementById("progress-count").textContent = done + " / " + total;
+      document.getElementById("progress-bar").style.width = total ? Math.round((done / total) * 100) + "%" : "0";
+      document.getElementById("status-text").textContent = done === total
+        ? "필수 항목이 채워졌습니다. 파일 다운로드 또는 Gemini 생성을 진행할 수 있습니다."
+        : "필수 항목 " + (total - done) + "개가 남았습니다. 모르면 비워두고 진행해도 됩니다.";
+    }
+
+    function normalizeOptionLabel(q, option, index) {
+      const detail = document.querySelector('[data-detail-for="' + q.id + "::" + index + '"]');
+      const detailValue = detail ? detail.value.trim() : "";
+      if (option.indexOf("기타:") === 0) return detailValue ? "기타: " + detailValue : option;
+      if (option.indexOf("___") >= 0) return option.replace("___", detailValue || "___");
+      return option;
+    }
+
+    function buildAnsweredMarkdown() {
+      const lines = [
+        "# DESIGN.md 작성 질문지",
+        "### HAM MEDIA AI Studio | 채널·클라이언트 디자인 기준 문서 제작용",
+        "",
+        "---",
+        "",
+        "## 섹션 0. 기본 정보",
+        "",
+        "| 항목 | 답변 |",
+        "|---|---|"
+      ];
+
+      BASE_FIELDS.forEach(function(field) {
+        lines.push("| " + field.label + " | " + markdownCell(getBaseFieldValue(field)) + " |");
+      });
+
+      SECTIONS.forEach(function(section) {
+        lines.push("", "---", "", "## 섹션 " + section.number + ". " + section.title, "");
+        section.questions.forEach(function(q) {
+          lines.push("### " + q.id + ". " + q.heading, "");
+          if (q.type === "text") appendTextAnswer(lines, q);
+          if (q.type === "select") appendSelectAnswer(lines, q);
+          if (q.type === "table") appendTableAnswer(lines, q);
+          lines.push("");
+        });
+      });
+
+      return lines.join("\n").replace(/\n{4,}/g, "\n\n\n").trim() + "\n";
+    }
+
+    function markdownCell(value) {
+      return value ? value.replace(/\|/g, "/") : "";
+    }
+
+    function getBaseFieldValue(field) {
+      if (!field.inputId) return field.fallback || "";
+      const input = document.getElementById(field.inputId);
+      return (input && input.value.trim()) || field.fallback || "";
+    }
+
+    function appendTextAnswer(lines, q) {
+      const value = document.getElementById(fieldId(q.id)).value.trim();
+      lines.push("```");
+      lines.push(value || "(자유 서술)");
+      lines.push("```");
+    }
+
+    function appendSelectAnswer(lines, q) {
+      q.options.forEach(function(option, index) {
+        const input = document.querySelector('[data-qid="' + q.id + '"][data-option-index="' + index + '"]');
+        const checked = input && input.checked;
+        lines.push("- [" + (checked ? "x" : " ") + "] " + normalizeOptionLabel(q, option, index));
+      });
+    }
+
+    function appendTableAnswer(lines, q) {
+      lines.push("| " + q.columns.join(" | ") + " |");
+      lines.push("|" + q.columns.map(function() { return "---"; }).join("|") + "|");
+      q.rows.forEach(function(row, rowIndex) {
+        if (q.id === "2-1" && row[0] === "성별") {
+          const genderValue = Array.from(document.querySelectorAll('[data-table-gender="' + q.id + '"]:checked')).map(function(input) {
+            return input.value;
+          }).join(", ");
+          lines.push("| 성별 | " + markdownCell(genderValue) + " |");
+          return;
+        }
+        const main = document.querySelector('[data-table="' + q.id + '"][data-row="' + rowIndex + '"][data-col="1"]');
+        const note = document.querySelector('[data-table="' + q.id + '"][data-row="' + rowIndex + '"][data-col="2"]');
+        if (q.columns.length > 2) {
+          lines.push("| " + row[0] + " | " + markdownCell(main ? main.value.trim() : "") + " | " + markdownCell(note ? note.value.trim() : "") + " |");
+        } else {
+          lines.push("| " + row[0] + " | " + markdownCell(main ? main.value.trim() : "") + " |");
+        }
+      });
+    }
+
+    function buildDesignPrompt() {
+      return [
+        "You are creating a DESIGN.md raw draft for a content channel.",
+        "",
+        "Rules:",
+        "- DESIGN.md is a practical visual system document, not a brand essay.",
+        "- Write in English, but preserve prohibited expressions and prohibited imagery in the original input language.",
+        "- Keep the section structure fixed:",
+        "  1. Visual Theme",
+        "  2. Logo & Brand Mark",
+        "  3. Color System",
+        "  4. Typography",
+        "  5. Layout, Grid & Spacing",
+        "  6. Components",
+        "  7. Imagery, Icon & Texture",
+        "  8. Accessibility & Readability",
+        "  9. Output-Specific Rules",
+        "  10. Do's and Don'ts",
+        "  11. Agent Prompt Guide",
+        "  12. Version & Update Rule",
+        "- Start the file with this status comment: <!-- STATUS: RAW DRAFT — generated from public Design Brief Form. This is not a finished visual system. Resolve TODO / CONFLICT before implementation. -->",
+        "- Use clear color token names such as Trust Navy, Warm Ivory, Premium Gold, Base White, Medical Charcoal, Warning Red, Caution Orange, Fresh Mint.",
+        "- Do not invent final brand decisions. If answers conflict, show both and mark CONFLICT.",
+        "- If medical, finance, legal, advertising, or copyright risk appears, reflect it in Do's and Don'ts and imagery rules.",
+        "- If exact values such as HEX, pixel size, margin, or font size are missing, propose reasonable draft values and mark them adjustable.",
+        "- Include Output-Specific Rules for only the selected outputs and ratios.",
+        "",
+        "Create only the DESIGN.md markdown.",
+        "",
+        "Questionnaire answers:",
+        "",
+        buildAnsweredMarkdown()
+      ].join("\n");
+    }
+
+    function buildBriefFile() {
+      return [
+        "이 파일 사용법",
+        "1. 동봉된 .md 파일 전체를 복사하세요",
+        "2. ChatGPT, Claude, Gemini 중 아무 AI에나 붙여넣으세요",
+        "3. AI가 당신 채널의 DESIGN.md 초안을 만들어 줍니다",
+        "4. 더 다듬고 싶으면 " + CONTACT_LABEL + "로 문의하세요",
+        "",
+        "--- 아래는 AI에게 전달할 내용입니다 (지우지 마세요) ---",
+        "",
+        buildDesignPrompt()
+      ].join("\n");
+    }
+
+    function buildUsageText() {
+      return [
+        "[우리 채널 디자인 가이드 - 사용법]",
+        "",
+        "이 파일은 무엇인가요",
+        "- 우리 채널의 디자인 기준(색상·폰트·썸네일·영상 화면 규칙)을 정리한 문서의 초안입니다.",
+        "",
+        "어떻게 쓰나요",
+        "- (파일로 받은 경우) 동봉된 .md 파일 전체를 복사해 ChatGPT, Claude, Gemini 중",
+        "  아무 AI에나 붙여넣으면 디자인 가이드 초안을 만들어 줍니다.",
+        "- 완성된 가이드를 디자이너나 AI에게 주면, 썸네일·자막·카드뉴스를 같은 톤으로 만들 수 있습니다.",
+        "",
+        "이건 초안입니다",
+        "- 모순되거나 빈 부분이 남아 있을 수 있습니다.",
+        "- 실제로 쓸 수 있게 다듬은 완성본이 필요하면 아래로 문의하세요.",
+        "",
+        "문의: hammedia002@gmail.com",
+        "홈페이지: https://hammedia.github.io/hammedia",
+        ""
+      ].join("\n");
+    }
+
+    function channelName() {
+      const input = document.querySelector('[data-base-field="채널명 / 클라이언트명"]');
+      return (input && input.value.trim()) || "channel";
+    }
+
+    function fileSafeName(value) {
+      return value.trim().replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, "-").replace(/-+/g, "-") || "channel";
+    }
+
+    function todayStamp() {
+      const date = new Date();
+      const y = String(date.getFullYear());
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return y + m + d;
+    }
+
+    function todayIso() {
+      const stamp = todayStamp();
+      return stamp.slice(0, 4) + "-" + stamp.slice(4, 6) + "-" + stamp.slice(6, 8);
+    }
+
+    async function downloadZip(filename, files) {
+      if (!window.JSZip) {
+        setToast("ZIP 생성 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해주세요.", true);
+        return;
+      }
+      const zip = new JSZip();
+      files.forEach(function(file) {
+        zip.file(file.name, file.content);
+      });
+      const blob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function setToast(message, isError) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.style.color = isError ? "var(--red)" : "var(--green)";
+    }
+
+    async function generateWithGemini() {
+      const key = document.getElementById("gemini-key").value.trim();
+      if (!key) {
+        setToast("Gemini API 키를 먼저 입력해주세요. 키는 저장하지 않습니다.", true);
+        return;
+      }
+
+      const button = document.getElementById("generate-btn");
+      const preview = document.getElementById("design-preview");
+      button.disabled = true;
+      button.textContent = "생성 중";
+      setToast("Gemini가 DESIGN.md 초안을 만드는 중입니다.", false);
+
+      try {
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(GEMINI_MODEL) + ":generateContent?key=" + encodeURIComponent(key), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: buildDesignPrompt() }] }],
+            generationConfig: { temperature: 0.35 }
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          const message = data && data.error && data.error.message ? data.error.message : "Gemini API 호출에 실패했습니다.";
+          throw new Error(message);
+        }
+
+        const text = (((data.candidates || [])[0] || {}).content || {}).parts || [];
+        state.generatedDesign = text.map(function(part) { return part.text || ""; }).join("\n").trim();
+        if (!state.generatedDesign) throw new Error("Gemini 응답이 비어 있습니다.");
+
+        preview.textContent = state.generatedDesign;
+        preview.classList.add("active");
+        document.getElementById("download-design-btn").disabled = false;
+        setToast("초안이 생성됐습니다. 연락처는 선택사항이며 바로 ZIP을 받을 수 있습니다.", false);
+      } catch (error) {
+        setToast(error.message || "생성 중 오류가 발생했습니다.", true);
+      } finally {
+        button.disabled = false;
+        button.textContent = "여기서 만들기";
+      }
+    }
+
+    function openTally() {
+      if (!TALLY_URL) {
+        setToast("Tally 폼 링크가 설정되지 않았습니다.", true);
+        return;
+      }
+      window.open(TALLY_URL, "_blank", "noopener,noreferrer");
+    }
+
+    function openApiHelp() {
+      document.getElementById("api-help-modal").hidden = false;
+    }
+
+    function closeApiHelp() {
+      document.getElementById("api-help-modal").hidden = true;
+    }
+
+    async function downloadBriefZip() {
+      await downloadZip(fileSafeName(channelName()) + "-디자인브리프.zip", [
+        { name: "사용법.txt", content: buildUsageText() },
+        { name: "답변+프롬프트.md", content: buildBriefFile() }
+      ]);
+      setToast("디자인브리프 ZIP을 다운로드했습니다.", false);
+    }
+
+    async function downloadDesignZip() {
+      if (!state.generatedDesign) {
+        setToast("먼저 DESIGN.md 초안을 생성해주세요.", true);
+        return;
+      }
+      await downloadZip(fileSafeName(channelName()) + "-디자인가이드.zip", [
+        { name: "사용법.txt", content: buildUsageText() },
+        { name: "DESIGN.md", content: state.generatedDesign + "\n" }
+      ]);
+      setToast("디자인가이드 ZIP을 다운로드했습니다.", false);
+    }
+
+    function bindActions() {
+      document.getElementById("download-brief-btn").addEventListener("click", downloadBriefZip);
+      document.getElementById("download-brief-btn-inline").addEventListener("click", downloadBriefZip);
+      document.getElementById("generate-btn").addEventListener("click", generateWithGemini);
+      document.getElementById("tally-btn").addEventListener("click", openTally);
+      document.getElementById("download-design-btn").addEventListener("click", downloadDesignZip);
+      document.getElementById("api-help-btn").addEventListener("click", openApiHelp);
+      document.getElementById("api-help-close").addEventListener("click", closeApiHelp);
+      document.getElementById("api-help-modal").addEventListener("click", function(event) {
+        if (event.target.id === "api-help-modal") closeApiHelp();
+      });
+    }
+
+    renderForm();
+    bindActions();
+  </script>
+</body>
+</html>

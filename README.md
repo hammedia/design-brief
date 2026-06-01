@@ -8,6 +8,12 @@
 09_design-brief-form/
 ```
 
+이 폴더는 GitHub Pages 공개 루트로 쓰는 배포용 폴더다.
+
+- GitHub repo: `https://github.com/hammedia/design-brief`
+- Public URL: `https://hammedia.github.io/design-brief/`
+- 공개 루트: `main` 브랜치의 `/`
+
 ## 사용법
 
 1. `index.html`을 브라우저에서 연다.
@@ -41,11 +47,14 @@ ZIP 파일에는 다음 내용이 들어간다.
 
 ## 배포
 
-GitHub Pages에 올릴 때는 이 폴더의 `index.html`을 공개 루트로 사용한다.
+GitHub Pages에 올릴 때는 이 폴더 전체를 공개 루트로 사용한다. 01번 프로젝트의 `github-pages/` 폴더와 같은 역할을 이 폴더 자체가 맡는다.
 
 ```text
 09_design-brief-form/
 ├── index.html
+├── card-news-samples.html
+├── assets/
+├── GITHUB_PAGES.md
 └── README.md
 ```
 

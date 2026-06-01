@@ -686,7 +686,7 @@
 
         <div class="path-box">
           <strong>경로 A · 여기서 바로 만들기</strong>
-          <p>Gemini API 키를 입력하면 DESIGN.md RAW DRAFT를 바로 생성합니다.</p>
+          <p>Gemini API 키를 입력하면 DESIGN.md RAW DRAFT와 시각 스타일 시트 HTML을 함께 생성합니다.</p>
           <div class="api-row">
             <div class="api-label-row">
               <span>Gemini API 키 입력 (무료 발급)</span>
@@ -709,6 +709,7 @@
             키를 발급받은 뒤 이 화면으로 돌아와 입력창에 붙여넣으면 됩니다.
           </div>
           <pre class="preview" id="design-preview"></pre>
+          <button class="btn light" type="button" id="preview-style-btn" disabled>시각 스타일시트 미리보기</button>
           <button class="btn light" type="button" id="tally-btn">원하시면 연락처 남기기</button>
           <button class="btn secondary" type="button" id="download-design-btn" disabled>디자인가이드 ZIP 다운로드</button>
         </div>
@@ -867,7 +868,9 @@
     ];
 
     const state = {
-      generatedDesign: ""
+      generatedDesign: "",
+      generatedStyleSheet: "",
+      stylePreviewUrl: ""
     };
 
     function textQ(id, heading, required, hint) {
@@ -1130,6 +1133,7 @@
         "  12. Version & Update Rule",
         "- Start the file with this status comment: <!-- STATUS: RAW DRAFT — generated from public Design Brief Form. This is not a finished visual system. Resolve TODO / CONFLICT before implementation. -->",
         "- Use clear color token names such as Primary Blue, Warm Ivory, Support Green, Base White, Reading Charcoal, Warning Red, Caution Orange, Fresh Mint.",
+        "- In Color System, write each color with a token name, role, and HEX value when possible. If the value is uncertain, mark it adjustable.",
         "- Do not invent final brand decisions. If answers conflict, show both and mark CONFLICT.",
         "- If medical, finance, legal, advertising, or copyright risk appears, reflect it in Do's and Don'ts and imagery rules.",
         "- If exact values such as HEX, pixel size, margin, or font size are missing, propose reasonable draft values and mark them adjustable.",
@@ -1168,6 +1172,9 @@
         "- (파일로 받은 경우) 동봉된 .md 파일 전체를 복사해 ChatGPT, Claude, Gemini 중",
         "  아무 AI에나 붙여넣으면 디자인 가이드 초안을 만들어 줍니다.",
         "- 완성된 가이드를 디자이너나 AI에게 주면, 썸네일·자막·카드뉴스를 같은 톤으로 만들 수 있습니다.",
+        "- VISUAL_STYLE_SHEET.html은 색상·폰트·Do/Don’t를 눈으로 확인하는 시각 기준표입니다.",
+        "- 브라우저로 열면 색 팔레트와 글자 샘플을 바로 볼 수 있습니다.",
+        "- 흐리게 표시된 항목은 완성본에서 정리됩니다.",
         "",
         "이건 초안입니다",
         "- 모순되거나 빈 부분이 남아 있을 수 있습니다.",
@@ -1177,6 +1184,310 @@
         "홈페이지: https://hammedia.github.io/hammedia",
         ""
       ].join("\n");
+    }
+
+    function hasIncompleteMarker(value) {
+      return /TODO|pending|token pending|TBD|미정|CONFLICT|필수 답변 누락|<TODO>/i.test(String(value || ""));
+    }
+
+    function hasConflictMarker(value) {
+      return /CONFLICT/i.test(String(value || ""));
+    }
+
+    function isValidHex(value) {
+      return /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(value || "").trim());
+    }
+
+    function stripMarkdown(value) {
+      return String(value || "")
+        .replace(/<!--[\s\S]*?-->/g, " ")
+        .replace(/^[#>\-*+\s]+/, "")
+        .replace(/`+/g, "")
+        .replace(/\*\*/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function getMarkdownSection(markdown, keywords) {
+      const lines = String(markdown || "").split(/\r?\n/);
+      let start = -1;
+      let end = lines.length;
+      for (let index = 0; index < lines.length; index += 1) {
+        const lower = lines[index].toLowerCase();
+        if (/^##\s+/.test(lines[index]) && keywords.some(function(keyword) { return lower.indexOf(keyword) >= 0; })) {
+          start = index;
+          break;
+        }
+      }
+      if (start < 0) return "";
+      for (let index = start + 1; index < lines.length; index += 1) {
+        if (/^##\s+/.test(lines[index])) {
+          end = index;
+          break;
+        }
+      }
+      return lines.slice(start, end).join("\n");
+    }
+
+    function extractChannelTitle(markdown) {
+      const heading = String(markdown || "").split(/\r?\n/).find(function(line) { return /^#\s+/.test(line); });
+      if (!heading) return channelName();
+      const cleaned = stripMarkdown(heading)
+        .replace(/DESIGN\.md/gi, "")
+        .replace(/CHANNEL/gi, "")
+        .replace(/Draft.*$/i, "")
+        .replace(/^[-:—\s]+|[-:—\s]+$/g, "")
+        .trim();
+      return cleaned || channelName();
+    }
+
+    function extractStatus(markdown) {
+      return /STATUS:\s*REFINED/i.test(String(markdown || "")) ? "refined" : "raw_draft";
+    }
+
+    function sampleSizeForRole(role) {
+      const text = String(role || "").toLowerCase();
+      if (/display|hero|title|제목|메인/.test(text)) return 56;
+      if (/heading|thumbnail|shorts|card/.test(text)) return 38;
+      if (/caption|body|본문|보조/.test(text)) return 22;
+      return 30;
+    }
+
+    function extractStyleData(markdown) {
+      const dosDonts = extractDosDonts(markdown);
+      return {
+        channel: extractChannelTitle(markdown),
+        status: extractStatus(markdown),
+        colors: extractColors(markdown),
+        typography: extractTypography(markdown),
+        dos: dosDonts.dos,
+        donts: dosDonts.donts
+      };
+    }
+
+    function extractColors(markdown) {
+      const section = getMarkdownSection(markdown, ["color system", "color palette", "colors", "색상"]);
+      const lines = section.split(/\r?\n/);
+      const colors = [];
+      let currentHeading = "";
+
+      function pushColor(role, token, hex, source) {
+        const cleanRole = stripMarkdown(role || "Color");
+        const cleanToken = stripMarkdown(token || cleanRole || "Color");
+        const cleanHex = String(hex || "").trim();
+        const sourceText = [source, cleanRole, cleanToken, cleanHex].join(" ");
+        const key = (cleanToken + "::" + cleanHex).toLowerCase();
+        if (!cleanToken || colors.some(function(item) { return item.key === key; })) return;
+        colors.push({
+          key,
+          token: cleanToken,
+          hex: cleanHex,
+          role: cleanRole,
+          complete: isValidHex(cleanHex) && !hasIncompleteMarker(sourceText),
+          conflict: hasConflictMarker(sourceText)
+        });
+      }
+
+      lines.forEach(function(line) {
+        const heading = line.match(/^#{3,5}\s+(.+)/);
+        if (heading) {
+          currentHeading = heading[1];
+          return;
+        }
+
+        const hexMatch = line.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6})/i);
+        if (hexMatch && currentHeading && /reference\s+(value|direction)/i.test(line)) {
+          const parts = currentHeading.split(/\s*\/\s*/);
+          pushColor(parts[0], parts.slice(1).join(" / ") || parts[0], hexMatch[0], currentHeading + " " + line);
+          return;
+        }
+
+        if (hexMatch) {
+          const beforeHex = stripMarkdown(line.slice(0, line.indexOf(hexMatch[0])));
+          const split = beforeHex.split(/\s*(?::|—| - )\s*/);
+          let role = split[0] || beforeHex || "Color";
+          let token = split.slice(1).join(" ") || beforeHex || role;
+          if (beforeHex.indexOf("/") >= 0) {
+            const parts = beforeHex.split(/\s*\/\s*/);
+            role = parts[0];
+            token = parts.slice(1).join(" / ") || parts[0];
+          }
+          pushColor(role, token, hexMatch[0], line);
+          return;
+        }
+
+        const raw = line.match(/^\s*[-*]\s*([^:]+):\s*(.+)$/);
+        if (raw && /(background|accent|warning|color|메인 배경|강조색|경고|보조 배경|기타)/i.test(raw[1])) {
+          const value = raw[2];
+          const token = value.indexOf("->") >= 0 ? value.split("->").pop() : value;
+          pushColor(raw[1], token, "", line);
+        }
+      });
+
+      if (!colors.length) {
+        pushColor("Color System", "색상 기준", "", "TODO");
+      }
+      return colors.slice(0, 8).map(function(item) {
+        delete item.key;
+        return item;
+      });
+    }
+
+    function extractTypography(markdown) {
+      const section = getMarkdownSection(markdown, ["typography", "폰트", "타이포"]);
+      const lines = section.split(/\r?\n/);
+      const typography = [];
+      const primaryMatch = section.match(/Primary typeface:[\s\S]{0,120}?>\s*([^\n]+)/i) ||
+        section.match(/메인 서체\s*:\s*([^\n]+)/) ||
+        section.match(/>\s*([A-Za-z0-9가-힣][^\n]+)/);
+      const primaryFont = primaryMatch ? stripMarkdown(primaryMatch[1]) : "";
+
+      function pushType(role, font, size, source) {
+        const cleanRole = stripMarkdown(role || "Typography");
+        const cleanFont = stripMarkdown(font || primaryFont || "");
+        const sourceText = [source, cleanRole, cleanFont].join(" ");
+        const key = (cleanRole + "::" + cleanFont).toLowerCase();
+        if (!cleanRole || typography.some(function(item) { return item.key === key; })) return;
+        typography.push({
+          key,
+          role: cleanRole,
+          font: cleanFont || "완성본에서 정리",
+          sample_size_px: Number(size) || sampleSizeForRole(cleanRole),
+          complete: !!cleanFont && !/없음|미정/i.test(cleanFont) && !hasIncompleteMarker(sourceText),
+          conflict: hasConflictMarker(sourceText)
+        });
+      }
+
+      lines.forEach(function(line) {
+        const fontLine = line.match(/^\s*[-*]?\s*(메인 서체|보조 서체|강조\s*\/\s*임팩트 서체|말맛\s*\/\s*포인트 서체|Primary Typeface|Secondary Typeface|Exception Typeface)\s*:\s*(.+)$/i);
+        if (fontLine) {
+          pushType(fontLine[1], fontLine[2], sampleSizeForRole(fontLine[1]), line);
+          return;
+        }
+
+        if (/^\|/.test(line) && !/\|[-:\s|]+\|/.test(line) && !/Token\s*\|/i.test(line)) {
+          const cells = line.split("|").map(function(cell) { return cell.trim(); }).filter(Boolean);
+          if (cells.length >= 3) {
+            const sizeMatch = cells[1].match(/\d+/);
+            pushType(cells[0], primaryFont, sizeMatch ? sizeMatch[0] : sampleSizeForRole(cells[0]), line);
+          }
+        }
+      });
+
+      const subsectionFonts = section.matchAll(/^###\s+(.+?)\s*\n+>\s*([^\n]+)/gmi);
+      Array.from(subsectionFonts).forEach(function(match) {
+        pushType(match[1], match[2], sampleSizeForRole(match[1]), match[0]);
+      });
+
+      if (!typography.length) {
+        pushType("Typography", primaryFont, 34, section || "TODO");
+      }
+      return typography.slice(0, 8).map(function(item) {
+        delete item.key;
+        return item;
+      });
+    }
+
+    function extractDosDonts(markdown) {
+      const section = getMarkdownSection(markdown, ["do's", "do’s", "don", "금지"]);
+      const source = section || markdown;
+      const dos = [];
+      const donts = [];
+      let mode = "";
+
+      source.split(/\r?\n/).forEach(function(line) {
+        const heading = stripMarkdown(line);
+        if (/^Do$/i.test(heading)) mode = "do";
+        if (/^Don/.test(heading) || /^Don’t/i.test(heading) || /^Don't/i.test(heading)) mode = "dont";
+
+        const bullet = line.match(/^\s*[-*]\s+(.+)/);
+        if (!bullet) return;
+        const item = stripMarkdown(bullet[1]);
+        if (!item) return;
+
+        if (/^Do\s*:/i.test(item)) {
+          dos.push(item.replace(/^Do\s*:\s*/i, ""));
+        } else if (/^(Don't|Don’t)\s*:/i.test(item)) {
+          donts.push(item.replace(/^(Don't|Don’t)\s*:\s*/i, ""));
+        } else if (/^(Do not|Forbidden imagery|Do not display|금지|피해야)/i.test(item)) {
+          donts.push(item);
+        } else if (mode === "do") {
+          dos.push(item);
+        } else if (mode === "dont") {
+          donts.push(item);
+        }
+      });
+
+      if (!donts.length) {
+        const forbidden = String(markdown || "").match(/Forbidden imagery:\s*([^\n]+)/i);
+        if (forbidden) donts.push("Forbidden imagery: " + stripMarkdown(forbidden[1]));
+      }
+
+      return {
+        dos: dos.slice(0, 6),
+        donts: donts.slice(0, 6)
+      };
+    }
+
+    function visualStatusLabel(status) {
+      return status === "refined" ? "정리된 기준" : "무료 초안 — 일부 항목은 완성본에서 정리됩니다";
+    }
+
+    function itemNote(item) {
+      if (item.complete) return "";
+      if (item.conflict) return "방향이 정해지면 완성본에서 하나로 정리됩니다";
+      return "이 항목은 완성본에서 정리됩니다";
+    }
+
+    function renderVisualStyleSheetHtml(styleData) {
+      const colors = styleData.colors.map(function(color) {
+        return '<article class="color-card ' + (color.complete ? "" : "is-incomplete") + '">' +
+          '<div class="swatch" style="' + (color.complete ? "--swatch:" + escapeHtml(color.hex) : "") + '"></div>' +
+          '<div><h3>' + escapeHtml(color.token) + '</h3><p>' + escapeHtml(color.role) + '</p><strong>' + escapeHtml(color.hex || itemNote(color)) + '</strong></div>' +
+        '</article>';
+      }).join("");
+
+      const types = styleData.typography.map(function(type) {
+        const cssFont = String(type.font || "").replace(/["\\;]/g, "").trim();
+        return '<article class="type-card ' + (type.complete ? "" : "is-incomplete") + '">' +
+          '<div class="type-meta"><strong>' + escapeHtml(type.role) + '</strong><span>' + escapeHtml(type.font) + ' · ' + escapeHtml(type.sample_size_px + "px") + '</span></div>' +
+          '<p style="font-family:&quot;' + escapeHtml(cssFont || "Pretendard") + '&quot;, Pretendard, system-ui, sans-serif;font-size:' + escapeHtml(type.sample_size_px) + 'px;">다람쥐 헌 쳇바퀴 Aa Bb 123</p>' +
+          (type.complete ? "" : '<em>' + escapeHtml(itemNote(type)) + '</em>') +
+        '</article>';
+      }).join("");
+
+      const dos = (styleData.dos.length ? styleData.dos : ["채널 목적과 시청자 신뢰를 먼저 둔다"]).map(function(item) {
+        return '<li>' + escapeHtml(item) + '</li>';
+      }).join("");
+      const donts = (styleData.donts.length ? styleData.donts : ["완성되지 않은 기준은 완성값처럼 사용하지 않는다"]).map(function(item) {
+        return '<li>' + escapeHtml(item) + '</li>';
+      }).join("");
+
+      const json = JSON.stringify(styleData, null, 2).replace(/<\/script/gi, "<\\/script");
+
+      return '<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="UTF-8" />\n<meta name="viewport" content="width=device-width, initial-scale=1.0" />\n<title>' + escapeHtml(styleData.channel) + ' Visual Style Sheet</title>\n<style>\n' +
+        ':root{--bg:#F5F3EE;--paper:#F9F7F3;--panel:#F9F7F3;--ink:#1C1814;--muted:#4A423C;--line:#E6E1D9;--brand:#7EB5E8;--green:#00704A;--gold:#F4DC59;--red:#CC0000;}' +
+        '*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 14% 4%,rgba(126,181,232,.13),transparent 30%),radial-gradient(circle at 86% 7%,rgba(0,112,74,.09),transparent 24%),var(--bg);color:var(--ink);font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;line-height:1.55}.page{width:min(1080px,calc(100% - 28px));margin:0 auto;padding:28px 0 56px}.hero,.section,.footer{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 45px rgba(32,26,22,.08)}.hero{padding:24px;margin-bottom:14px}.eyebrow{display:inline-flex;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font-size:11px;font-weight:850}.badge{display:inline-flex;margin-left:8px;padding:4px 10px;border-radius:999px;background:rgba(126,181,232,.18);font-size:11px;font-weight:850}h1{margin:12px 0 8px;font-size:28px;line-height:1.15}p{margin:0;color:var(--muted)}.section{padding:20px;margin-bottom:14px}.section h2{margin:0 0 14px;font-size:19px}.color-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.color-card,.type-card{display:grid;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}.color-card{grid-template-columns:86px 1fr}.swatch{height:86px;border:1px solid var(--line);border-radius:14px;background:var(--swatch,var(--bg))}.color-card h3{margin:0 0 4px;font-size:16px}.color-card strong{display:inline-flex;margin-top:8px;font-size:13px}.is-incomplete{opacity:.72}.is-incomplete .swatch{background:repeating-linear-gradient(135deg,#eee7dc 0 10px,#f9f7f3 10px 20px)}.type-stack{display:grid;gap:10px}.type-meta{display:flex;gap:8px;justify-content:space-between;color:var(--muted);font-size:12px}.type-card p{margin-top:4px;color:var(--ink);line-height:1.15;word-break:keep-all}.type-card em{font-style:normal;color:var(--green);font-size:12px;font-weight:800}.do-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.do-box{padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}.do-box h3{margin:0 0 10px;font-size:16px}.do-box ul{display:grid;gap:8px;margin:0;padding-left:20px;color:var(--muted)}.footer{padding:18px;color:var(--muted);font-size:13px}@media(max-width:760px){.color-grid,.do-grid{grid-template-columns:1fr}.color-card{grid-template-columns:1fr}h1{font-size:23px}.type-card p{font-size:clamp(24px,10vw,44px)!important}}' +
+        '\n</style>\n</head>\n<body>\n<main class="page">\n<header class="hero"><span class="eyebrow">HAM MEDIA VISUAL STYLE SHEET</span><span class="badge">' + escapeHtml(visualStatusLabel(styleData.status)) + '</span><h1>' + escapeHtml(styleData.channel) + '</h1><p>DESIGN.md의 색상·폰트·Do/Don’t를 눈으로 확인하는 무료 초안입니다. 흐리게 표시된 항목은 완성본에서 정리됩니다.</p></header>\n' +
+        '<section class="section"><h2>색상 팔레트</h2><div class="color-grid">' + colors + '</div></section>\n' +
+        '<section class="section"><h2>타이포그래피 샘플</h2><div class="type-stack">' + types + '</div></section>\n' +
+        '<section class="section"><h2>Do / Don’t</h2><div class="do-grid"><div class="do-box"><h3>Do</h3><ul>' + dos + '</ul></div><div class="do-box"><h3>Don’t</h3><ul>' + donts + '</ul></div></div></section>\n' +
+        '<footer class="footer">이 스타일 시트는 무료 초안입니다. 완성본 제작 문의: hammedia002@gmail.com · https://hammedia.github.io/hammedia</footer>\n' +
+        '<scr' + 'ipt type="application/json" id="style-data">' + json + '</scr' + 'ipt>\n</main>\n</body>\n</html>\n';
+    }
+
+    function buildVisualStyleSheetFromDesign(designMarkdown) {
+      return renderVisualStyleSheetHtml(extractStyleData(designMarkdown));
+    }
+
+    function openStylePreview() {
+      if (!state.generatedStyleSheet) {
+        setToast("먼저 DESIGN.md 초안을 생성해주세요.", true);
+        return;
+      }
+      if (state.stylePreviewUrl) URL.revokeObjectURL(state.stylePreviewUrl);
+      state.stylePreviewUrl = URL.createObjectURL(new Blob([state.generatedStyleSheet], { type: "text/html;charset=utf-8" }));
+      window.open(state.stylePreviewUrl, "_blank", "noopener,noreferrer");
     }
 
     function channelName() {
@@ -1259,11 +1570,13 @@
         const text = (((data.candidates || [])[0] || {}).content || {}).parts || [];
         state.generatedDesign = text.map(function(part) { return part.text || ""; }).join("\n").trim();
         if (!state.generatedDesign) throw new Error("Gemini 응답이 비어 있습니다.");
+        state.generatedStyleSheet = buildVisualStyleSheetFromDesign(state.generatedDesign);
 
         preview.textContent = state.generatedDesign;
         preview.classList.add("active");
+        document.getElementById("preview-style-btn").disabled = false;
         document.getElementById("download-design-btn").disabled = false;
-        setToast("초안이 생성됐습니다. 연락처는 선택사항이며 바로 ZIP을 받을 수 있습니다.", false);
+        setToast("초안과 시각 스타일시트가 생성됐습니다. 바로 ZIP을 받을 수 있습니다.", false);
       } catch (error) {
         setToast(error.message || "생성 중 오류가 발생했습니다.", true);
       } finally {
@@ -1295,7 +1608,8 @@
       }
       await downloadZip(fileSafeName(channelName()) + "-디자인가이드.zip", [
         { name: "사용법.txt", content: buildUsageText() },
-        { name: "DESIGN.md", content: state.generatedDesign + "\n" }
+        { name: "DESIGN.md", content: state.generatedDesign + "\n" },
+        { name: "VISUAL_STYLE_SHEET.html", content: state.generatedStyleSheet || buildVisualStyleSheetFromDesign(state.generatedDesign) }
       ]);
       setToast("디자인가이드 ZIP을 다운로드했습니다.", false);
     }
@@ -1304,6 +1618,7 @@
       document.getElementById("download-brief-btn").addEventListener("click", downloadBriefZip);
       document.getElementById("download-brief-btn-inline").addEventListener("click", downloadBriefZip);
       document.getElementById("generate-btn").addEventListener("click", generateWithGemini);
+      document.getElementById("preview-style-btn").addEventListener("click", openStylePreview);
       document.getElementById("tally-btn").addEventListener("click", openTally);
       document.getElementById("download-design-btn").addEventListener("click", downloadDesignZip);
     }

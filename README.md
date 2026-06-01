@@ -23,14 +23,16 @@
 
 ## 경로 A. 여기서 바로 만들기
 
-Gemini API 키를 입력하면 브라우저 안에서 `DESIGN.md` RAW DRAFT를 생성하고 ZIP으로 내려받는다.
+Gemini API 키를 입력하면 브라우저 안에서 `DESIGN.md` RAW DRAFT와 `VISUAL_STYLE_SHEET.html`을 생성하고 ZIP으로 내려받는다.
 
 - 모델: `gemini-2.5-flash`
 - API 키는 브라우저 메모리에서만 사용한다.
 - API 키를 서버로 저장하거나 `localStorage`에 저장하지 않는다.
 - ZIP 파일명: `[채널명]-디자인가이드.zip`
-- ZIP 내용: `DESIGN.md`, `사용법.txt`
+- ZIP 내용: `DESIGN.md`, `VISUAL_STYLE_SHEET.html`, `사용법.txt`
 - 연락처 남기기는 선택사항이다.
+
+`VISUAL_STYLE_SHEET.html`은 생성된 `DESIGN.md`에서 색상, 타이포그래피, Do/Don’t만 결정적으로 추출해 고정 템플릿에 채운 시각 기준표다. `TODO`, `CONFLICT`, `pending`, 빈 HEX/폰트 값은 완성값처럼 보이지 않게 흐린 안내 상태로 표시한다.
 
 ## 경로 B. 파일로 받아서 직접
 
@@ -44,6 +46,7 @@ ZIP 파일에는 다음 내용이 들어간다.
 `답변+프롬프트.md` 전체를 ChatGPT, Claude, Gemini 등에 붙여넣으면 `DESIGN.md` 초안을 만들 수 있다.
 
 - ZIP 파일명: `[채널명]-디자인브리프.zip`
+- 이 경로는 아직 `DESIGN.md`가 생성되기 전이므로 `VISUAL_STYLE_SHEET.html`은 포함하지 않는다.
 
 ## 배포
 

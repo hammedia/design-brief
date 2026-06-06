@@ -275,6 +275,73 @@
       letter-spacing: 0;
     }
 
+    .section-copy {
+      margin: -4px 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .advanced-details {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .advanced-details summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 58px;
+      padding: 18px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .advanced-details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .advanced-title {
+      display: grid;
+      gap: 3px;
+    }
+
+    .advanced-title strong {
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .advanced-title span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .advanced-chip {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--chip);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .advanced-details[open] .advanced-chip {
+      color: var(--ink);
+    }
+
+    .advanced-content {
+      display: grid;
+      gap: 12px;
+      padding: 0 18px 18px;
+    }
+
     .question {
       padding: 14px 0;
       border-top: 1px solid var(--line);
@@ -311,6 +378,10 @@
       font-size: 12px;
       font-weight: 800;
       white-space: nowrap;
+    }
+
+    .required.is-advanced {
+      color: var(--green);
     }
 
     .hint {
@@ -732,6 +803,24 @@
       { label: "작성일", fallback: todayIso() }
     ];
 
+    const CORE_SECTIONS = [
+      {
+        number: 1,
+        title: "핵심 질문",
+        copy: "먼저 쉬운 질문 8개만 답해도 DESIGN.md 초안을 만들 수 있습니다.",
+        questions: [
+          textQ("P1", "무엇을 만들고 싶나요?", true, "예: 유튜브 썸네일과 카드뉴스를 같은 톤으로 만들고 싶어요."),
+          textQ("P2", "누구에게 보여줄 건가요?", true, "예: 우리 채널을 처음 보는 30~40대 직장인, 디자인을 잘 모르는 고객."),
+          textQ("P3", "어떤 느낌이 나야 하나요?", true, "예: 쉽게 이해되고, 믿음이 가고, 너무 광고처럼 보이지 않았으면 좋겠어요."),
+          textQ("P4", "절대 피하고 싶은 느낌은?", true, "예: 너무 유치함, 너무 복잡함, 자극적인 광고 느낌, 과장된 전후 비교."),
+          textQ("P5", "꼭 들어가야 할 자료가 있나요?", false, "예: 로고, 대표 사진, 홈페이지 주소, 고정 문구. 없으면 비워두세요."),
+          textQ("P6", "좋아하는 예시가 있나요?", false, "예: 링크, 이미지 이름, 브랜드명, 또는 그냥 '차분한 잡지 느낌'처럼 적어도 됩니다."),
+          textQ("P7", "싫어하는 예시가 있나요?", false, "예: 너무 화려한 유튜브 썸네일, 네온색, 스톡 이미지 느낌."),
+          selectQ("P8", "어디에 쓸 건가요?", true, ["유튜브 썸네일", "유튜브 영상 화면", "Shorts / 릴스", "카드뉴스", "PDF / 강의안", "PPT / 슬라이드", "SNS 포스트", "홈페이지", "기타: ___"])
+        ]
+      }
+    ];
+
     const SECTIONS = [
       {
         number: 1,
@@ -899,13 +988,36 @@
       const root = document.getElementById("form-root");
       const blocks = [];
 
-      SECTIONS.forEach(function(section) {
-        blocks.push('<section class="section"><h2>섹션 ' + section.number + '. ' + escapeHtml(section.title) + '</h2>');
+      CORE_SECTIONS.forEach(function(section) {
+        blocks.push('<section class="section"><h2>' + escapeHtml(section.title) + '</h2>');
+        if (section.copy) blocks.push('<p class="section-copy">' + escapeHtml(section.copy) + '</p>');
         section.questions.forEach(function(q) {
           blocks.push(renderQuestion(q));
         });
         blocks.push('</section>');
       });
+
+      blocks.push(
+        '<details class="section advanced-details">' +
+          '<summary>' +
+            '<span class="advanced-title">' +
+              '<strong>고급 질문</strong>' +
+              '<span>색상, 폰트, 레이아웃, 영상 화면처럼 더 자세한 기준을 정하고 싶을 때 열어주세요.</span>' +
+            '</span>' +
+            '<span class="advanced-chip">선택</span>' +
+          '</summary>' +
+          '<div class="advanced-content">'
+      );
+
+      SECTIONS.forEach(function(section) {
+        blocks.push('<section class="section"><h2>섹션 ' + section.number + '. ' + escapeHtml(section.title) + '</h2>');
+        section.questions.forEach(function(q) {
+          blocks.push(renderQuestion(q, true));
+        });
+        blocks.push('</section>');
+      });
+
+      blocks.push('</div></details>');
 
       root.innerHTML = blocks.join("");
       document.querySelectorAll("input, textarea").forEach(function(node) {
@@ -915,8 +1027,10 @@
       updateProgress();
     }
 
-    function renderQuestion(q) {
-      const required = q.required ? '<span class="required">필수</span>' : "";
+    function renderQuestion(q, isAdvanced) {
+      const required = q.required
+        ? '<span class="required' + (isAdvanced ? " is-advanced" : "") + '">' + (isAdvanced ? "고급" : "필수") + '</span>'
+        : "";
       const guide = q.type === "select" ? '<p class="choice-guide">' + escapeHtml(choiceGuide(q)) + '</p>' : "";
       let body = "";
       if (q.type === "text") body = renderTextQuestion(q);
@@ -1001,7 +1115,11 @@
     }
 
     function getAllQuestions() {
-      return SECTIONS.flatMap(function(section) { return section.questions; });
+      return CORE_SECTIONS.concat(SECTIONS).flatMap(function(section) { return section.questions; });
+    }
+
+    function getCoreRequiredQuestions() {
+      return CORE_SECTIONS.flatMap(function(section) { return section.questions; }).filter(function(q) { return q.required; });
     }
 
     function isFilled(q) {
@@ -1016,14 +1134,14 @@
     }
 
     function updateProgress() {
-      const requiredQuestions = getAllQuestions().filter(function(q) { return q.required; });
+      const requiredQuestions = getCoreRequiredQuestions();
       const done = requiredQuestions.filter(isFilled).length;
       const total = requiredQuestions.length;
       document.getElementById("progress-count").textContent = done + " / " + total;
       document.getElementById("progress-bar").style.width = total ? Math.round((done / total) * 100) + "%" : "0";
       document.getElementById("status-text").textContent = done === total
-        ? "필수 항목이 채워졌습니다. 파일 다운로드 또는 Gemini 생성을 진행할 수 있습니다."
-        : "필수 항목 " + (total - done) + "개가 남았습니다. 모르면 비워두고 진행해도 됩니다.";
+        ? "핵심 질문이 채워졌습니다. 고급 질문은 필요할 때만 열어 답하세요."
+        : "핵심 질문 " + (total - done) + "개가 남았습니다. 고급 질문은 선택입니다.";
     }
 
     function normalizeOptionLabel(q, option, index) {
@@ -1051,8 +1169,19 @@
         lines.push("| " + field.label + " | " + markdownCell(getBaseFieldValue(field)) + " |");
       });
 
+      CORE_SECTIONS.forEach(function(section) {
+        lines.push("", "---", "", "## 기본 질문. " + section.title, "");
+        section.questions.forEach(function(q) {
+          lines.push("### " + q.id + ". " + q.heading, "");
+          if (q.type === "text") appendTextAnswer(lines, q);
+          if (q.type === "select") appendSelectAnswer(lines, q);
+          if (q.type === "table") appendTableAnswer(lines, q);
+          lines.push("");
+        });
+      });
+
       SECTIONS.forEach(function(section) {
-        lines.push("", "---", "", "## 섹션 " + section.number + ". " + section.title, "");
+        lines.push("", "---", "", "## 고급 질문 " + section.number + ". " + section.title, "");
         section.questions.forEach(function(q) {
           lines.push("### " + q.id + ". " + q.heading, "");
           if (q.type === "text") appendTextAnswer(lines, q);
@@ -1113,31 +1242,31 @@
 
     function buildDesignPrompt() {
       return [
-        "You are creating a DESIGN.md raw draft for a content channel.",
+        "You are creating a public_easy DESIGN.md raw draft for a content channel.",
         "",
         "Rules:",
         "- DESIGN.md is a practical visual system document, not a brand essay.",
-        "- Write in English, but preserve prohibited expressions and prohibited imagery in the original input language.",
-        "- Keep the section structure fixed:",
-        "  1. Visual Theme",
-        "  2. Logo & Brand Mark",
-        "  3. Color System",
-        "  4. Typography",
-        "  5. Layout, Grid & Spacing",
-        "  6. Components",
-        "  7. Imagery, Icon & Texture",
-        "  8. Accessibility & Readability",
-        "  9. Output-Specific Rules",
-        "  10. Do's and Don'ts",
-        "  11. Agent Prompt Guide",
-        "  12. Version & Update Rule",
-        "- Start the file with this status comment: <!-- STATUS: RAW DRAFT — generated from public Design Brief Form. This is not a finished visual system. Resolve TODO / CONFLICT before implementation. -->",
+        "- Write the body in Korean. Keep the English section name in parentheses for compatibility with AI/design tools.",
+        "- Keep the section structure fixed and bilingual:",
+        "  1. 핵심 아이디어 (Core Idea)",
+        "  2. 대상과 목적 (Audience & Purpose)",
+        "  3. 시각 분위기 (Visual Theme)",
+        "  4. 색상 시스템 (Color System)",
+        "  5. 글자 기준 (Typography)",
+        "  6. 이미지 기준 (Imagery Rules)",
+        "  7. 사용처별 규칙 (Output-Specific Rules)",
+        "  8. 해야 할 것 / 피해야 할 것 (Do / Don't)",
+        "  9. 접근성 / 가독성 (Accessibility & Readability)",
+        "  10. 업데이트 규칙 (Update Rule)",
+        "- Start the file with this status comment: <!-- STATUS: RAW DRAFT — public_easy mode. This is not a finished visual system. Resolve TODO / adjustable / CONFLICT before implementation. -->",
+        "- Do not create research_memo.md. This public mode only creates DESIGN.md.",
         "- Use clear color token names such as Primary Blue, Warm Ivory, Support Green, Base White, Reading Charcoal, Warning Red, Caution Orange, Fresh Mint.",
-        "- In Color System, write each color with a token name, role, and HEX value when possible. If the value is uncertain, mark it adjustable.",
-        "- Do not invent final brand decisions. If answers conflict, show both and mark CONFLICT.",
+        "- In 색상 시스템 (Color System), write each color with a token name, role, and HEX value when possible. If the value is uncertain, mark it adjustable.",
+        "- Do not invent final brand decisions. If answers conflict, show both and mark CONFLICT in Korean.",
         "- If medical, finance, legal, advertising, or copyright risk appears, reflect it in Do's and Don'ts and imagery rules.",
         "- If exact values such as HEX, pixel size, margin, or font size are missing, propose reasonable draft values and mark them adjustable.",
-        "- Include Output-Specific Rules for only the selected outputs and ratios.",
+        "- Use the 8 public_easy core answers first. Use advanced answers only when they are filled.",
+        "- Include 사용처별 규칙 (Output-Specific Rules) for only the selected outputs and ratios.",
         "",
         "Create only the DESIGN.md markdown.",
         "",

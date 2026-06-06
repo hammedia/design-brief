@@ -344,3 +344,193 @@ Primary Blue `#2F6FDB` (adjustable draft)
 - `star_internal`의 12개 질문은 `SKILL.md`에 운영 기준으로 넣고, 실제 질문/메모 템플릿은 별도 파일로 분리한다.
 - `questions.json` 분리 이름을 정한다: 예) `questions.public.json`, `questions.star_internal.json`.
 - `camera_star`처럼 `research_memo.md`가 없는 기존 별을 나중에 소급 보강할지 결정한다.
+
+## 실사용 테스트 후 수정 후보
+
+2026-06-06 가성비 뷰티 유튜버 예시로 기본 질문 / 고급 질문 비교 테스트를 진행하면서 아래 후보를 발견했다.
+
+1. 색상 HEX 추출 보강
+   - 현재 `VISUAL_STYLE_SHEET.html` 생성 로직이 `#FFF8F0` 같은 6자리 HEX를 `#FFF`처럼 앞 3자리로 잡는 경우가 있다.
+   - 다음 수정 때 6자리 HEX를 우선 인식하도록 정규식을 조정한다.
+
+2. 타이포그래피 역할 추출 보강
+   - `메인 서체`, `제목 서체`, `가격 배지`, `긴 설명`처럼 여러 역할을 적어도 스타일시트에는 1개만 잡히는 경우가 있다.
+   - 다음 수정 때 한국어 역할명과 배지/가격/본문 역할을 더 잘 읽도록 추출 규칙을 보강한다.
+
+3. 고급 질문 안내 강화
+   - 기본 8문항만으로도 방향은 잡히지만, 색상/폰트/컴포넌트 품질은 고급 질문 답변이 있을 때 확실히 좋아진다.
+   - 공개 화면에 "색, 폰트, 썸네일 모양까지 정하고 싶으면 고급 질문을 열어주세요"라는 안내를 더 분명히 넣는 것을 검토한다.
+
+## 2026-06-06 실제 폼 검증 메모
+
+30대 여성 가성비 뷰티용품 리뷰 유튜버 예시로 `09_design-brief-form` 실제 화면을 다시 검증했다.
+
+검증 방식:
+
+- 로컬 서버: `http://127.0.0.1:8112/`
+- 1차 확인: Codex 인앱 브라우저로 기본 화면, 핵심 질문 입력, 고급 질문 입력, 가짜 키 오류 화면을 캡처
+- 2차 확인: 임시 Chrome 프로필과 원격 디버깅으로 실제 페이지 함수, ZIP 다운로드, Gemini 요청 형태 확인
+- 실제 Gemini 키는 전송하지 않음
+- 가짜 키 `fake-test-key-not-real`로 오류 처리와 요청 형태만 확인
+
+확인 결과:
+
+- 기본 노출 질문은 8개이고, 진행률은 필수 핵심 질문 5개 기준으로 `0 / 5`에서 `5 / 5`로 정상 변경된다.
+- 고급 질문은 기본 닫힘 상태이고, 기존 세부 질문 48개가 접기 영역에 보존되어 있다.
+- 기본 질문만 입력해도 `답변+프롬프트.md` 안에 사용자의 색상 단서가 들어간다.
+  - 예: `크림색`, `말린 장미색`, `네온 핑크`
+- 고급 질문까지 입력하면 직접 지정한 색상과 폰트가 프롬프트에 들어간다.
+  - 색상: `#FFF8F0`, `#D98295`, `#FF6B5E`, `#A8DCC2`, `#2B2420`
+  - 폰트: `Pretendard`, `Pretendard Regular`, `Pretendard ExtraBold`, `가격 배지용 굵은 산세리프`
+- 키 없이 ZIP 다운로드는 실제 Chrome에서 성공했다.
+  - ZIP 파일명: `뷰티지갑-디자인브리프.zip`
+  - 포함 파일: `사용법.txt`, `답변+프롬프트.md`
+  - `research_memo.md` 파일은 생성되지 않는다.
+- `답변+프롬프트.md` 안에는 `research_memo.md`를 만들지 말라는 규칙 문장이 들어간다.
+  - 따라서 문자열 검색에는 `research_memo`가 잡히지만, 실제 출력 파일로 생성되는 것은 아니다.
+- Gemini 키 입력칸은 `type="password"`, `autocomplete="off"`, `spellcheck="false"`이다.
+- 키는 `localStorage`나 `sessionStorage`에 저장되지 않았다.
+- `여기서 만들기`를 누르면 Gemini 요청은 아래 형태로 나간다.
+  - `POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=...`
+  - 요청 본문에는 `buildDesignPrompt()` 결과가 들어간다.
+- 가짜 키 테스트에서는 오류 토스트가 정상 노출되고, `DESIGN.md` 미리보기와 디자인가이드 ZIP 버튼은 활성화되지 않았다.
+
+키 사용 방식 비교:
+
+- `09_design-brief-form/index.html`
+  - 공개 사용자 입력 키를 브라우저 메모리에서만 읽고, Gemini API URL의 `?key=` 값으로 전송한다.
+  - 앱 자체 저장소에는 저장하지 않는다.
+- `11_youtube-idea-finder-public/index.html`
+  - 공개 도구로서 사용자가 입력한 키를 비슷하게 Gemini API URL의 `?key=` 값으로 전송한다.
+- `01_youtube-channel-report/github-pages/index.html`
+  - 페이지 상태 객체에 키를 임시 저장하고, Gemini API URL의 `?key=` 값으로 전송한다.
+  - UI 문구의 `저장`은 브라우저 영구 저장이 아니라 현재 페이지 상태 저장에 가깝다.
+- `02_youtube-trend-finder/ai_report.py`
+  - 로컬 `.env`의 `GEMINI_API_KEY`를 읽고, `x-goog-api-key` 헤더로 전송한다.
+- `05_HAM_DesignStudio/tools/kim-upload-generator/server.js`
+  - 로컬 `.env`의 `GEMINI_API_KEY`를 읽고, Gemini API URL의 `?key=` 값으로 전송한다.
+
+추가 수정 후보:
+
+1. 다운로드 성공 토스트 정확화
+   - 현재 `downloadZip()`이 JSZip 로딩 실패로 조기 반환해도 호출부에서 성공 토스트를 띄울 수 있는 구조다.
+   - 다음 수정 때 `downloadZip()`이 성공 여부를 반환하고, 성공일 때만 "다운로드했습니다"를 띄우도록 바꾼다.
+
+2. 공개 도구 키 전송 방식 검토
+   - 현재 공개 HTML 도구는 `?key=` 쿼리 방식이다.
+   - 내부 Python 도구처럼 `x-goog-api-key` 헤더 방식으로 바꿀 수 있는지 CORS와 브라우저 동작을 확인한다.
+   - 가능하면 URL/네트워크 로그에 키가 남는 면을 줄이기 위해 헤더 방식을 검토한다.
+
+3. JSZip CDN 의존성 안내
+   - 키 없이 ZIP 받기는 JSZip CDN 로딩에 의존한다.
+   - 인터넷 연결 또는 CDN 차단 시 ZIP 생성이 실패할 수 있으므로, 오류 문구와 fallback 안내를 더 분명히 한다.
+
+## 2026-06-06 실제 Gemini 키 검증 메모
+
+사용자 승인 후 로컬 `.env`의 `GEMINI_API_KEY`를 사용해 실제 생성 흐름을 검증했다.
+키 값은 출력하지 않았고, 임시 Chrome 프로필에서만 사용했다.
+
+검증 결과:
+
+- `09_design-brief-form`의 실제 `여기서 만들기` 버튼은 로컬 키로 Gemini API 호출까지 진행된다.
+- 현재 폼 기본 모델인 `gemini-2.5-flash`는 3회 시도 모두 아래 오류를 반환했다.
+  - `This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.`
+- 이는 키 누락/키 오류가 아니라 모델 가용성 문제로 보인다.
+  - 같은 키로 모델 목록 조회 성공
+  - 같은 폼 프롬프트를 `gemini-2.5-flash-lite`에 전달했을 때 생성 성공
+
+fallback 생성 결과:
+
+- 기본 질문만 사용한 `public_easy` 프롬프트
+  - 사용 모델: `gemini-2.5-flash-lite`
+  - `DESIGN.md` 생성 성공
+  - 섹션 10개가 한국어 본문 + 영어 섹션명 병기 구조로 생성됨
+  - 색상은 답변의 분위기에서 추론됨
+  - 예: `Warm Ivory`, `Base White`, `Dried Rose`
+- 고급 질문까지 사용한 프롬프트
+  - 사용 모델: `gemini-2.5-flash-lite`
+  - `DESIGN.md` 생성 성공
+  - 사용자가 직접 적은 색상과 폰트가 더 정확히 반영됨
+  - 색상: `#FFF8F0`, `#D98295`, `#FF6B5E`, `#A8DCC2`, `#2B2420`
+  - 폰트: `Pretendard`, `Pretendard Regular`, `Pretendard ExtraBold`
+
+추가로 확정된 문제:
+
+1. 현재 모델 오류 문구가 그대로 영어로 노출된다.
+   - 사용자는 키가 틀린 것인지, 모델이 바쁜 것인지 구분하기 어렵다.
+   - 다음 수정 때 high demand / quota / invalid key / network 오류를 한국어 사용자 메시지로 분기한다.
+
+2. 기본 모델 fallback 전략이 없다.
+   - `gemini-2.5-flash`가 일시적으로 막히면 공개 폼에서 생성이 끝까지 진행되지 않는다.
+   - 다음 수정 때 `gemini-2.5-flash-lite` 또는 `gemini-2.0-flash` fallback을 검토한다.
+   - 단, 공개 문구에는 "기본 모델이 바쁘면 가벼운 모델로 다시 시도" 정도로 쉽게 설명한다.
+
+3. 시각 스타일시트 HEX 추출 문제는 실제 Gemini 결과에서도 재현된다.
+   - `DESIGN.md`에는 `#FFF8F0`, `#D98295`처럼 6자리 HEX가 정상 생성된다.
+   - `VISUAL_STYLE_SHEET.html`에서는 `#FFF`, `#D98`, `#FF6`, `#A8D`처럼 3자리로 잘리는 경우가 있다.
+   - 다음 수정에서 가장 먼저 고칠 항목이다.
+
+4. 고급 질문은 실제 결과 품질에 분명한 차이를 만든다.
+   - 기본 질문만 있으면 색상과 폰트가 AI 추론값으로 채워진다.
+   - 고급 질문을 쓰면 색상, 폰트, 사용처별 규칙이 더 직접적으로 반영된다.
+   - 공개 UI에서는 고급 질문을 강요하지 않되, "정확한 색/폰트까지 원하면 열어보기" 안내를 강화하는 것이 좋다.
+
+## 2026-06-07 수정 후 10회 반복 테스트 메모
+
+확정 문제를 먼저 수정한 뒤 5분 간격으로 10회 반복 테스트를 다시 진행했다.
+테스트 결과물은 폐기 가능한 임시 폴더에만 저장했다.
+
+적용한 수정:
+
+- `gemini-2.5-flash` 혼잡 시 `gemini-2.5-flash-lite`, `gemini-2.0-flash` 순서로 fallback 재시도
+- Gemini 오류 메시지 한국어화
+  - invalid key
+  - high demand
+  - quota / rate limit
+  - network error
+- 색상 추출에서 6자리 HEX를 3자리 HEX보다 우선 인식
+- 색상 표 형태의 `DESIGN.md`도 토큰 / 역할 / HEX로 분리해 추출
+- JSZip 로딩 실패 시 성공 토스트를 띄우지 않도록 다운로드 성공 여부 반환
+
+10회 반복 결과:
+
+- 총 시나리오 수: 20개
+  - `core`: 10개
+  - `advanced`: 10개
+- 성공: 17개
+- 실패: 3개
+- 성공한 17개는 모두 `good`
+- 평균 점수: 102
+- `VISUAL_STYLE_SHEET.html`의 HEX 잘림 재발: 0건
+- 기본 모델 성공: 4건
+- fallback 성공: 13건
+
+실패 원인:
+
+- 9회차 `advanced` 1건 실패
+- 10회차 `core`, `advanced` 2건 실패
+- 모두 결과 품질 문제가 아니라 Gemini 무료 티어 429 quota 오류
+- 오류 메시지에는 약 40초 뒤 재시도하라는 안내가 포함됨
+- 반복 테스트처럼 짧은 시간에 여러 모델을 순차 호출하면 5분 간격이어도 무료 요청 한도에 닿을 수 있다.
+
+판단:
+
+- 결과 품질을 확인하기 위해 20회까지 늘릴 필요는 낮다.
+- 17개 성공 결과가 모두 `good`이고, 핵심 버그였던 HEX 잘림은 0건으로 사라졌다.
+- 추가 20회 테스트를 한다면 품질 검증보다 quota / retry-after / 호출량 관리 검증이 된다.
+
+추가 수정 후보:
+
+1. fallback 호출 수 제한
+   - 공개 사용자 1회 생성에서는 fallback이 유용하다.
+   - 반복 테스트나 quota가 낮은 키에서는 fallback이 요청 수를 빠르게 늘릴 수 있다.
+   - `quota` 오류는 fallback을 계속 돌리기보다 즉시 멈추고 재시도 시간을 안내하는 편이 낫다.
+   - 2026-06-07 수정에서 `quota` 오류는 fallback하지 않도록 반영했다.
+
+2. retry-after 안내 강화
+   - Gemini 오류에 `Please retry in 40s`가 포함되면 사용자에게 "약 1분 뒤 다시 시도해주세요"라고 보여준다.
+   - 2026-06-07 수정에서 초 단위 retry 안내를 분 단위 한국어 메시지로 변환하도록 반영했다.
+
+3. 모델명 표시 문구 정리
+   - 현재 fallback 성공 토스트는 `gemini-2.5-flash-lite`처럼 모델명을 그대로 보여준다.
+   - 공개 사용자에게는 "가벼운 모델로 다시 시도했습니다" 정도가 더 쉽다.

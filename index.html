@@ -794,6 +794,7 @@
     "use strict";
 
     const GEMINI_MODEL = "gemini-2.5-flash";
+    const GEMINI_FALLBACK_MODELS = ["gemini-2.5-flash-lite", "gemini-2.0-flash"];
     const TALLY_URL = "https://tally.so/r/Y5kVV6";
     const CONTACT_LABEL = "이메일 hammedia002@gmail.com 또는 홈페이지 hammedia.github.io/hammedia";
 
@@ -1002,7 +1003,7 @@
           '<summary>' +
             '<span class="advanced-title">' +
               '<strong>고급 질문</strong>' +
-              '<span>색상, 폰트, 레이아웃, 영상 화면처럼 더 자세한 기준을 정하고 싶을 때 열어주세요.</span>' +
+              '<span>색상, 폰트, 썸네일 모양까지 더 정확히 정하고 싶다면 열어주세요.</span>' +
             '</span>' +
             '<span class="advanced-chip">선택</span>' +
           '</summary>' +
@@ -1424,7 +1425,7 @@
           return;
         }
 
-        const hexMatch = line.match(/#(?:[0-9a-f]{3}|[0-9a-f]{6})/i);
+        const hexMatch = line.match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/i);
         if (hexMatch && currentHeading && /reference\s+(value|direction)/i.test(line)) {
           const parts = currentHeading.split(/\s*\/\s*/);
           pushColor(parts[0], parts.slice(1).join(" / ") || parts[0], hexMatch[0], currentHeading + " " + line);
@@ -1432,6 +1433,18 @@
         }
 
         if (hexMatch) {
+          if (/^\|/.test(line) && !/\|[-:\s|]+\|/.test(line)) {
+            const cells = line.split("|").map(function(cell) { return cell.trim(); }).filter(Boolean);
+            const hexCellIndex = cells.findIndex(function(cell) { return /#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/i.test(cell); });
+            if (hexCellIndex >= 0) {
+              const tableHex = cells[hexCellIndex].match(/#(?:[0-9a-f]{6}|[0-9a-f]{3})\b/i)[0];
+              const token = cells[0] || "Color";
+              const role = cells[1] || cells[0] || "Color";
+              pushColor(role, token, tableHex, line);
+              return;
+            }
+          }
+
           const beforeHex = stripMarkdown(line.slice(0, line.indexOf(hexMatch[0])));
           const split = beforeHex.split(/\s*(?::|—| - )\s*/);
           let role = split[0] || beforeHex || "Color";
@@ -1644,7 +1657,7 @@
     async function downloadZip(filename, files) {
       if (!window.JSZip) {
         setToast("ZIP 생성 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해주세요.", true);
-        return;
+        return false;
       }
       const zip = new JSZip();
       files.forEach(function(file) {
@@ -1659,12 +1672,107 @@
       anchor.click();
       anchor.remove();
       URL.revokeObjectURL(url);
+      return true;
     }
 
     function setToast(message, isError) {
       const toast = document.getElementById("toast");
       toast.textContent = message;
       toast.style.color = isError ? "var(--red)" : "var(--green)";
+    }
+
+    function geminiModelsForAttempt() {
+      return [GEMINI_MODEL].concat(GEMINI_FALLBACK_MODELS).filter(function(model, index, models) {
+        return model && models.indexOf(model) === index;
+      });
+    }
+
+    function geminiEndpoint(model, key) {
+      return "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent?key=" + encodeURIComponent(key);
+    }
+
+    function friendlyGeminiError(message, status) {
+      const raw = String(message || "");
+      if (/API key not valid|API_KEY_INVALID|invalid api key/i.test(raw)) {
+        return "Gemini API 키가 올바르지 않습니다. 키를 다시 확인해주세요.";
+      }
+      if (/high demand|try again later|overload|unavailable|temporar/i.test(raw)) {
+        return "Gemini 모델이 현재 혼잡합니다. 잠시 후 다시 시도해주세요.";
+      }
+      if (isQuotaGeminiError(raw, status)) {
+        const retryText = geminiRetryText(raw);
+        return "Gemini 무료 사용량 제한에 걸렸습니다." + (retryText ? " " + retryText : " 잠시 후 다시 시도해주세요.");
+      }
+      if (/Failed to fetch|NetworkError|Load failed/i.test(raw)) {
+        return "네트워크 문제로 Gemini에 연결하지 못했습니다. 인터넷 연결을 확인해주세요.";
+      }
+      return raw || "Gemini API 호출에 실패했습니다.";
+    }
+
+    function isQuotaGeminiError(message, status) {
+      const raw = String(message || "");
+      return status === 429 && /quota|rate limit|RESOURCE_EXHAUSTED|exceeded/i.test(raw);
+    }
+
+    function geminiRetryText(message) {
+      const match = String(message || "").match(/retry in\s+([0-9.]+)s/i);
+      if (!match) return "";
+      const seconds = Math.ceil(Number(match[1]) || 0);
+      if (!seconds) return "";
+      const minutes = Math.max(1, Math.ceil(seconds / 60));
+      return minutes + "분 뒤 다시 시도해주세요.";
+    }
+
+    function canRetryGeminiError(message, status) {
+      const raw = String(message || "");
+      if (isQuotaGeminiError(raw, status)) return false;
+      return status === 503 || /high demand|try again later|overload|unavailable|temporar|empty response/i.test(raw);
+    }
+
+    async function requestGeminiDesign(key, prompt) {
+      const models = geminiModelsForAttempt();
+      const attempts = [];
+
+      for (let index = 0; index < models.length; index += 1) {
+        const model = models[index];
+        let response;
+        let data = {};
+        try {
+          response = await fetch(geminiEndpoint(model, key), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ role: "user", parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.35 }
+            })
+          });
+          data = await response.json().catch(function() { return {}; });
+        } catch (error) {
+          const networkMessage = friendlyGeminiError(error.message, 0);
+          attempts.push({ model, status: 0, message: networkMessage });
+          if (index < models.length - 1 && canRetryGeminiError(error.message, 0)) continue;
+          throw new Error(networkMessage);
+        }
+
+        if (!response.ok) {
+          const rawMessage = data && data.error && data.error.message ? data.error.message : "Gemini API 호출에 실패했습니다.";
+          const message = friendlyGeminiError(rawMessage, response.status);
+          attempts.push({ model, status: response.status, message });
+          if (index < models.length - 1 && canRetryGeminiError(rawMessage, response.status)) continue;
+          throw new Error(message);
+        }
+
+        const text = (((data.candidates || [])[0] || {}).content || {}).parts || [];
+        const design = text.map(function(part) { return part.text || ""; }).join("\n").trim();
+        if (design) {
+          return { design, model, usedFallback: model !== GEMINI_MODEL, attempts };
+        }
+
+        attempts.push({ model, status: response.status, message: "Gemini 응답이 비어 있습니다." });
+        if (index < models.length - 1) continue;
+      }
+
+      throw new Error("Gemini 응답이 비어 있습니다.");
     }
 
     async function generateWithGemini() {
@@ -1681,31 +1789,20 @@
       setToast("Gemini가 DESIGN.md 초안을 만드는 중입니다.", false);
 
       try {
-        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(GEMINI_MODEL) + ":generateContent?key=" + encodeURIComponent(key), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: buildDesignPrompt() }] }],
-            generationConfig: { temperature: 0.35 }
-          })
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-          const message = data && data.error && data.error.message ? data.error.message : "Gemini API 호출에 실패했습니다.";
-          throw new Error(message);
-        }
-
-        const text = (((data.candidates || [])[0] || {}).content || {}).parts || [];
-        state.generatedDesign = text.map(function(part) { return part.text || ""; }).join("\n").trim();
-        if (!state.generatedDesign) throw new Error("Gemini 응답이 비어 있습니다.");
+        const result = await requestGeminiDesign(key, buildDesignPrompt());
+        state.generatedDesign = result.design;
         state.generatedStyleSheet = buildVisualStyleSheetFromDesign(state.generatedDesign);
 
         preview.textContent = state.generatedDesign;
         preview.classList.add("active");
         document.getElementById("preview-style-btn").disabled = false;
         document.getElementById("download-design-btn").disabled = false;
-        setToast("초안과 시각 스타일시트가 생성됐습니다. 바로 ZIP을 받을 수 있습니다.", false);
+        setToast(
+          result.usedFallback
+            ? "기본 모델이 혼잡해 가벼운 모델로 다시 시도했습니다. 생성이 완료되었습니다."
+            : "초안과 시각 스타일시트가 생성됐습니다. 바로 ZIP을 받을 수 있습니다.",
+          false
+        );
       } catch (error) {
         setToast(error.message || "생성 중 오류가 발생했습니다.", true);
       } finally {
@@ -1723,11 +1820,11 @@
     }
 
     async function downloadBriefZip() {
-      await downloadZip(fileSafeName(channelName()) + "-디자인브리프.zip", [
+      const ok = await downloadZip(fileSafeName(channelName()) + "-디자인브리프.zip", [
         { name: "사용법.txt", content: buildUsageText() },
         { name: "답변+프롬프트.md", content: buildBriefFile() }
       ]);
-      setToast("디자인브리프 ZIP을 다운로드했습니다.", false);
+      if (ok) setToast("디자인브리프 ZIP을 다운로드했습니다.", false);
     }
 
     async function downloadDesignZip() {
@@ -1735,12 +1832,12 @@
         setToast("먼저 DESIGN.md 초안을 생성해주세요.", true);
         return;
       }
-      await downloadZip(fileSafeName(channelName()) + "-디자인가이드.zip", [
+      const ok = await downloadZip(fileSafeName(channelName()) + "-디자인가이드.zip", [
         { name: "사용법.txt", content: buildUsageText() },
         { name: "DESIGN.md", content: state.generatedDesign + "\n" },
         { name: "VISUAL_STYLE_SHEET.html", content: state.generatedStyleSheet || buildVisualStyleSheetFromDesign(state.generatedDesign) }
       ]);
-      setToast("디자인가이드 ZIP을 다운로드했습니다.", false);
+      if (ok) setToast("디자인가이드 ZIP을 다운로드했습니다.", false);
     }
 
     function bindActions() {

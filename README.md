@@ -39,7 +39,7 @@ Gemini API 키를 입력하면 브라우저 안에서 한국어 본문 기반 `D
 
 - 모델: `gemini-2.5-flash`
 - API 키는 브라우저 메모리에서만 사용한다.
-- API 키를 서버로 저장하거나 `localStorage`에 저장하지 않는다.
+- API 키를 서버, `localStorage`, `sessionStorage`에 저장하지 않는다.
 - ZIP 파일명: `[채널명]-디자인가이드.zip`
 - ZIP 내용: `DESIGN.md`, `VISUAL_STYLE_SHEET.html`, `사용법.txt`
 - 연락처 남기기는 선택사항이다.
@@ -80,6 +80,12 @@ GitHub Pages에 올릴 때는 이 폴더 전체를 공개 루트로 사용한다
 - 연락처 수집은 Tally가 담당한다.
 - 연락처 입력은 다운로드 조건이 아니라 선택사항이다.
 - Tally URL: `https://tally.so/r/Y5kVV6`
+
+## HAM MEDIA 운영 참고
+
+이 도구는 HAM MEDIA의 디자인 질문과 브리프 수집 흐름에 연결된 공개용 도구다. 공개 README에는 내부 기준 전문을 길게 싣지 않는다.
+
+내부 작업자는 운영 판단이 필요할 때 `HAM_WORLDVIEW.md`와 `HAM_AI_COLLABORATION_RULES.md`를 함께 확인한다.
 
 ## 제작
 

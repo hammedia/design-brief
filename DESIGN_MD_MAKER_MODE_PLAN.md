@@ -405,7 +405,7 @@ Primary Blue `#2F6FDB` (adjustable draft)
 - `01_youtube-channel-report/github-pages/index.html`
   - 페이지 상태 객체에 키를 임시 저장하고, Gemini API URL의 `?key=` 값으로 전송한다.
   - UI 문구의 `저장`은 브라우저 영구 저장이 아니라 현재 페이지 상태 저장에 가깝다.
-- `02_youtube-trend-finder/ai_report.py`
+- `13_youtube-trend-finder/ai_report.py`
   - 로컬 `.env`의 `GEMINI_API_KEY`를 읽고, `x-goog-api-key` 헤더로 전송한다.
 - `05_HAM_DesignStudio/tools/kim-upload-generator/server.js`
   - 로컬 `.env`의 `GEMINI_API_KEY`를 읽고, Gemini API URL의 `?key=` 값으로 전송한다.

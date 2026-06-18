@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>우리 채널 디자인 가이드 만들기</title>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script>document.documentElement.classList.add("js-ready");</script>
   <style>
     :root {
       --bg: #F5F3EE;
@@ -219,6 +220,42 @@
       font-weight: 750;
     }
 
+    .start-panel {
+      display: grid;
+      gap: 10px;
+      margin: 0 0 14px;
+      padding: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .start-panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .start-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .start-actions .btn {
+      width: auto;
+      min-width: min(100%, 280px);
+      padding-inline: 18px;
+    }
+
+    .start-note {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
     .status-panel {
       padding: 16px;
       display: flex;
@@ -258,6 +295,16 @@
       grid-template-columns: minmax(0, 1fr) 340px;
       gap: 14px;
       align-items: start;
+    }
+
+    .js-ready .app.is-form-collapsed .topbar {
+      grid-template-columns: 1fr;
+    }
+
+    .js-ready .app.is-form-collapsed .status-panel,
+    .js-ready .app.is-form-collapsed .layout,
+    .js-ready .app.is-form-open .start-panel {
+      display: none;
     }
 
     .form-stack {
@@ -480,6 +527,9 @@
     .action-panel {
       position: sticky;
       top: 12px;
+      max-height: calc(100vh - 24px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
       padding: 16px;
     }
 
@@ -652,14 +702,21 @@
 
       .action-panel {
         position: static;
+        max-height: none;
+        overflow: visible;
       }
 
       .option-list, .table-row {
         grid-template-columns: 1fr;
       }
 
-      .guide-grid {
-        grid-template-columns: 1fr;
+      .guide-grid, .sample-cards {
+        display: flex;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scroll-snap-type: x proximity;
       }
 
       .sample-preview-head {
@@ -667,8 +724,17 @@
         flex-direction: column;
       }
 
-      .sample-cards {
-        grid-template-columns: 1fr;
+      .guide-block, .sample-card-link {
+        flex: 0 0 min(260px, 82%);
+        scroll-snap-align: start;
+      }
+
+      .start-actions {
+        display: grid;
+      }
+
+      .start-actions .btn {
+        width: 100%;
       }
 
       h1 {
@@ -678,7 +744,7 @@
   </style>
 </head>
 <body>
-  <main class="app">
+  <main class="app is-form-collapsed">
     <section class="topbar">
       <div class="intro">
         <div class="eyebrow">무료로 디자인 기준 문서 만들기</div>
@@ -704,7 +770,7 @@
           <span class="notice">키 없이 ZIP으로 받기 가능</span>
         </div>
       </div>
-      <aside class="status-panel">
+      <aside class="status-panel" id="form-status">
         <div>
           <div class="status-label">작성 진행률</div>
           <h2 id="progress-count">0 / 0</h2>
@@ -738,7 +804,15 @@
       </div>
     </section>
 
-    <section class="layout">
+    <section class="start-panel" aria-label="디자인 가이드 만들기 시작">
+      <p>예시를 확인했다면, 아래 버튼을 눌러 질문지를 열고 내 채널 기준을 정리해보세요.</p>
+      <div class="start-actions">
+        <button class="btn secondary" type="button" id="start-form-btn" aria-controls="design-form-section form-status" aria-expanded="false">무료로 디자인 가이드 만들기</button>
+        <span class="start-note">질문지는 같은 페이지에서 바로 열립니다.</span>
+      </div>
+    </section>
+
+    <section class="layout" id="design-form-section">
       <div class="form-stack" id="form-root"></div>
 
       <aside class="action-panel">
@@ -752,11 +826,11 @@
         <div class="path-box">
           <strong>키 없이 파일로 받기</strong>
           <p>사용법.txt와 AI에 붙여넣을 답변+프롬프트.md를 ZIP으로 받습니다.</p>
-          <button class="btn secondary" type="button" id="download-brief-btn">키 없이 ZIP 받기</button>
+          <button class="btn secondary" type="button" id="download-brief-btn">무료로 파일 받기</button>
         </div>
 
         <div class="path-box">
-          <strong>경로 A · 여기서 바로 만들기</strong>
+          <strong>경로 A · Gemini로 바로 만들기</strong>
           <p>Gemini API 키를 입력하면 DESIGN.md RAW DRAFT와 시각 스타일 시트 HTML을 함께 생성합니다.</p>
           <div class="api-row">
             <div class="api-label-row">
@@ -773,8 +847,7 @@
               </ol>
               <p>무료 계정으로도 사용할 수 있고, 키는 이 브라우저 메모리에서만 쓰입니다.</p>
             </div>
-            <button class="btn" type="button" id="generate-btn">여기서 만들기</button>
-            <button class="btn light" type="button" id="download-brief-btn-inline">키 없이 파일로 받기</button>
+            <button class="btn" type="button" id="generate-btn">Gemini로 바로 만들기</button>
           </div>
           <div class="small-note">
             키를 발급받은 뒤 이 화면으로 돌아와 입력창에 붙여넣으면 됩니다.
@@ -797,6 +870,7 @@
     const GEMINI_FALLBACK_MODELS = ["gemini-2.5-flash-lite", "gemini-2.0-flash"];
     const TALLY_URL = "https://tally.so/r/Y5kVV6";
     const CONTACT_LABEL = "이메일 hammedia002@gmail.com 또는 홈페이지 hammedia.github.io/hammedia";
+    const FORM_OPEN_STORAGE_KEY = "designBriefFormOpened";
 
     const BASE_FIELDS = [
       { label: "채널명 / 클라이언트명", inputId: "channel-name", fallback: "" },
@@ -1807,7 +1881,7 @@
         setToast(error.message || "생성 중 오류가 발생했습니다.", true);
       } finally {
         button.disabled = false;
-        button.textContent = "여기서 만들기";
+        button.textContent = "Gemini로 바로 만들기";
       }
     }
 
@@ -1817,6 +1891,55 @@
         return;
       }
       window.open(TALLY_URL, "_blank", "noopener,noreferrer");
+    }
+
+    function storageGet(key) {
+      try {
+        return window.localStorage.getItem(key);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function storageSet(key, value) {
+      try {
+        window.localStorage.setItem(key, value);
+      } catch (error) {
+        // UI state persistence is optional. Do not block the form if storage is unavailable.
+      }
+    }
+
+    function setFormOpen(isOpen, options) {
+      const app = document.querySelector(".app");
+      const startButton = document.getElementById("start-form-btn");
+      const statusPanel = document.getElementById("form-status");
+      const formSection = document.getElementById("design-form-section");
+      const shouldScroll = options && options.scroll;
+
+      app.classList.toggle("is-form-open", isOpen);
+      app.classList.toggle("is-form-collapsed", !isOpen);
+      startButton.setAttribute("aria-expanded", String(isOpen));
+      statusPanel.setAttribute("aria-hidden", String(!isOpen));
+      formSection.setAttribute("aria-hidden", String(!isOpen));
+
+      if (isOpen) storageSet(FORM_OPEN_STORAGE_KEY, "true");
+      if (isOpen && shouldScroll) {
+        const firstQuestion = document.querySelector('[data-question-id="P1"]') || formSection;
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        firstQuestion.scrollIntoView({
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+          block: "start"
+        });
+      }
+    }
+
+    function initializeFormDisclosure() {
+      const startButton = document.getElementById("start-form-btn");
+      const wasOpened = storageGet(FORM_OPEN_STORAGE_KEY) === "true";
+      setFormOpen(wasOpened, { scroll: false });
+      startButton.addEventListener("click", function() {
+        setFormOpen(true, { scroll: true });
+      });
     }
 
     async function downloadBriefZip() {
@@ -1842,7 +1965,6 @@
 
     function bindActions() {
       document.getElementById("download-brief-btn").addEventListener("click", downloadBriefZip);
-      document.getElementById("download-brief-btn-inline").addEventListener("click", downloadBriefZip);
       document.getElementById("generate-btn").addEventListener("click", generateWithGemini);
       document.getElementById("preview-style-btn").addEventListener("click", openStylePreview);
       document.getElementById("tally-btn").addEventListener("click", openTally);
@@ -1851,6 +1973,7 @@
 
     renderForm();
     bindActions();
+    initializeFormDisclosure();
   </script>
 </body>
 </html>

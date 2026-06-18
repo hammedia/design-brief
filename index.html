@@ -4,27 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>우리 채널 디자인 가이드 만들기</title>
+  <link rel="stylesheet" href="assets/css/ham-tokens.css" />
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script>document.documentElement.classList.add("js-ready");</script>
   <style>
     :root {
-      --bg: #F5F3EE;
-      --paper: #F9F7F3;
-      --panel: #F9F7F3;
-      --ink: #1C1814;
-      --muted: #4A423C;
-      --line: #E6E1D9;
-      --brand: #7EB5E8;
-      --brand-2: #00704A;
-      --gold: #F4DC59;
-      --red: #CC0000;
-      --good: #00704A;
-      --chip: #F5F3EE;
-      --field: #F9F7F3;
-      --soft: #F5F3EE;
-      --navy: #7EB5E8;
-      --green: #00704A;
-      --shadow: 0 18px 45px rgba(32, 26, 22, 0.08);
+      /* 표준은 ham-tokens.css에서 옴. 아래는 기존 이름 호환용 별칭. */
+      --bg: var(--paper-deep);
+      --panel: var(--paper);
+      --field: var(--paper);
+      --soft: var(--paper-deep);
+      --chip: var(--paper-deep);
+      --brand: var(--accent);
+      --navy: var(--accent);
+      --brand-2: var(--action);
+      --green: var(--action);
+      --good: var(--action);
+      --gold: var(--highlight);
+      --red: var(--warn);
+      --bad: var(--warn);
+      --shadow: var(--shadow-soft);
     }
 
     * { box-sizing: border-box; }
@@ -33,10 +32,10 @@
       margin: 0;
       background:
         radial-gradient(circle at top left, rgba(126, 181, 232, .08), transparent 30%),
-        radial-gradient(circle at top right, rgba(0, 112, 74, .08), transparent 22%),
+        radial-gradient(circle at top right, rgba(126, 181, 232, .06), transparent 22%),
         var(--bg);
       color: var(--ink);
-      font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font);
       line-height: 1.55;
       -webkit-font-smoothing: antialiased;
     }
@@ -46,7 +45,7 @@
     }
 
     .app {
-      width: min(1080px, calc(100% - 28px));
+      width: min(1120px, calc(100% - 28px));
       margin: 0 auto;
       padding: 22px 0 56px;
     }
@@ -62,12 +61,13 @@
     .intro, .status-panel, .section, .action-panel {
       background: var(--paper);
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
     }
 
     .intro {
-      padding: 22px;
+      padding: 30px;
+      border-radius: var(--radius-lg);
     }
 
     .eyebrow {
@@ -76,17 +76,17 @@
       min-height: 28px;
       padding: 4px 10px;
       border: 1px solid var(--line);
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       background: var(--chip);
-      color: var(--ink);
+      color: var(--accent);
       font-size: 11px;
       font-weight: 800;
-      margin-bottom: 11px;
+      margin-bottom: 14px;
     }
 
     h1 {
-      margin: 0 0 8px;
-      font-size: 27px;
+      margin: 0 0 12px;
+      font-size: 34px;
       line-height: 1.15;
       letter-spacing: 0;
     }
@@ -95,14 +95,15 @@
       max-width: 760px;
       margin: 0;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 16px;
+      line-height: 1.65;
     }
 
     .notice-row {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 16px;
+      margin-top: 20px;
     }
 
     .notice {
@@ -110,7 +111,7 @@
       align-items: center;
       min-height: 30px;
       padding: 5px 10px;
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       border: 1px solid var(--line);
       background: var(--chip);
       color: var(--ink);
@@ -118,18 +119,31 @@
       font-weight: 700;
     }
 
+    .notice-icon {
+      width: 14px;
+      height: 14px;
+      margin-right: 6px;
+      color: var(--accent);
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: 0 0 auto;
+    }
+
     .guide-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 16px;
+      gap: 12px;
+      margin-top: 22px;
     }
 
     .guide-block {
-      min-height: 138px;
-      padding: 13px;
+      min-height: 150px;
+      padding: 15px;
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: var(--radius);
       background: var(--panel);
     }
 
@@ -146,25 +160,25 @@
     }
 
     .sample-preview {
-      margin: 0 0 14px;
-      padding: 18px;
+      margin: 0 0 18px;
+      padding: 24px;
       background: var(--paper);
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: var(--radius-lg);
       box-shadow: var(--shadow);
     }
 
     .sample-preview-head {
       display: flex;
       justify-content: space-between;
-      gap: 14px;
+      gap: 18px;
       align-items: flex-end;
-      margin-bottom: 14px;
+      margin-bottom: 18px;
     }
 
     .sample-preview-title {
-      margin: 0 0 4px;
-      font-size: 19px;
+      margin: 0 0 6px;
+      font-size: 23px;
       line-height: 1.3;
     }
 
@@ -180,10 +194,10 @@
       justify-content: center;
       min-height: 38px;
       padding: 7px 12px;
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       border: 1px solid var(--line);
       background: var(--chip);
-      color: var(--ink);
+      color: var(--accent);
       text-decoration: none;
       font-size: 13px;
       font-weight: 850;
@@ -193,7 +207,7 @@
     .sample-cards {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
+      gap: 14px;
     }
 
     .sample-card-link {
@@ -208,27 +222,70 @@
       display: block;
       object-fit: cover;
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: var(--radius);
       background: var(--panel);
+    }
+
+    .sample-card-link.is-loose .sample-thumb {
+      border-style: dashed;
+      opacity: 0.72;
+      filter: saturate(0.72) contrast(0.92);
     }
 
     .sample-caption {
       display: block;
-      margin-top: 7px;
+      margin-top: 9px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .user-voice {
+      position: relative;
+      margin: 4px 0 18px;
+      padding: 20px 18px 18px 54px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+    }
+
+    .user-voice::before {
+      content: "“";
+      position: absolute;
+      left: 18px;
+      top: 8px;
+      color: var(--accent);
+      font-family: var(--serif);
+      font-size: 42px;
+      line-height: 1;
+    }
+
+    .user-voice blockquote {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .user-voice figcaption {
+      margin-top: 6px;
       color: var(--muted);
       font-size: 12px;
-      font-weight: 750;
+      font-weight: 700;
     }
 
     .start-panel {
       display: grid;
-      gap: 10px;
-      margin: 0 0 14px;
-      padding: 18px;
+      justify-items: center;
+      gap: 14px;
+      margin: 0 0 18px;
+      padding: 24px;
       background: var(--paper);
       border: 1px solid var(--line);
-      border-radius: 18px;
+      border-radius: var(--radius-lg);
       box-shadow: var(--shadow);
+      text-align: center;
     }
 
     .start-panel p {
@@ -242,17 +299,20 @@
       flex-wrap: wrap;
       gap: 10px;
       align-items: center;
+      justify-content: center;
     }
 
     .start-actions .btn {
       width: auto;
-      min-width: min(100%, 280px);
-      padding-inline: 18px;
+      min-width: min(100%, 340px);
+      min-height: 52px;
+      padding-inline: 26px;
+      font-size: 16px;
     }
 
     .start-note {
       color: var(--muted);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 750;
     }
 
@@ -273,15 +333,15 @@
     .progress {
       height: 8px;
       overflow: hidden;
-      background: #ece6dc;
-      border-radius: 999px;
+      background: var(--beige);
+      border-radius: var(--radius-pill);
     }
 
     .progress span {
       display: block;
       width: 0;
       height: 100%;
-      background: linear-gradient(90deg, var(--brand), var(--brand-2));
+      background: var(--accent);
       transition: width 160ms ease;
     }
 
@@ -371,9 +431,9 @@
       min-height: 30px;
       padding: 5px 10px;
       border: 1px solid var(--line);
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       background: var(--chip);
-      color: var(--green);
+      color: var(--accent);
       font-size: 12px;
       font-weight: 850;
       white-space: nowrap;
@@ -415,7 +475,7 @@
     }
 
     .question-id {
-      color: var(--green);
+      color: var(--accent);
       font-weight: 900;
       margin-right: 5px;
     }
@@ -428,7 +488,7 @@
     }
 
     .required.is-advanced {
-      color: var(--green);
+      color: var(--accent);
     }
 
     .hint {
@@ -442,9 +502,9 @@
       margin: 0 0 10px;
       min-height: 24px;
       padding: 3px 8px;
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       background: var(--soft);
-      color: var(--green);
+      color: var(--accent);
       font-size: 11px;
       font-weight: 800;
     }
@@ -452,7 +512,7 @@
     textarea, input[type="text"], input[type="password"] {
       width: 100%;
       border: 1px solid var(--line);
-      border-radius: 16px;
+      border-radius: var(--radius);
       background: var(--field);
       color: var(--ink);
       padding: 10px 11px;
@@ -482,7 +542,7 @@
       min-height: 40px;
       padding: 9px;
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: var(--radius);
       background: var(--panel);
     }
 
@@ -563,17 +623,17 @@
       width: 100%;
       min-height: 42px;
       border: 1px solid transparent;
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       cursor: pointer;
       color: var(--paper);
-      background: var(--ink);
+      background: var(--action);
       font-weight: 850;
       text-decoration: none;
       text-align: center;
     }
 
     .btn.secondary {
-      background: var(--green);
+      background: var(--action);
     }
 
     .btn.light {
@@ -607,15 +667,49 @@
     }
 
     .small-note a {
-      color: var(--ink);
+      color: var(--accent);
       font-weight: 800;
+    }
+
+    .gen-status {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--chip);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .gen-status.is-visible {
+      display: flex;
+    }
+
+    .gen-status.is-error {
+      color: var(--red);
+    }
+
+    .gen-status.is-done {
+      color: var(--green);
+    }
+
+    .gen-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: var(--radius-pill);
+      border: 1px solid currentColor;
+      flex: 0 0 auto;
     }
 
     .api-guide-box {
       display: grid;
       gap: 10px;
       padding: 16px 18px;
-      border-radius: 16px;
+      border-radius: var(--radius);
       border: 1px solid var(--line);
       background: var(--chip);
       color: var(--muted);
@@ -641,7 +735,7 @@
     }
 
     .api-guide-box a {
-      color: var(--ink);
+      color: var(--accent);
       font-weight: 800;
       text-underline-offset: 3px;
     }
@@ -652,9 +746,9 @@
       min-height: 30px;
       padding: 5px 10px;
       border: 1px solid var(--line);
-      border-radius: 999px;
+      border-radius: var(--radius-pill);
       background: var(--chip);
-      color: var(--ink);
+      color: var(--accent);
       font-size: inherit;
       font-weight: 900;
       line-height: 1.25;
@@ -675,7 +769,7 @@
       overflow: auto;
       white-space: pre-wrap;
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: var(--radius);
       background: #161a1d;
       color: #f7f3e8;
       padding: 12px;
@@ -737,8 +831,28 @@
         width: 100%;
       }
 
+      .intro {
+        padding: 24px 20px;
+      }
+
       h1 {
-        font-size: 22px;
+        font-size: 28px;
+      }
+
+      .intro p {
+        font-size: 15px;
+      }
+
+      .sample-preview {
+        padding: 20px;
+      }
+
+      .sample-preview-title {
+        font-size: 21px;
+      }
+
+      .user-voice {
+        padding-left: 46px;
       }
     }
   </style>
@@ -747,9 +861,9 @@
   <main class="app is-form-collapsed">
     <section class="topbar">
       <div class="intro">
-        <div class="eyebrow">무료로 디자인 기준 문서 만들기</div>
+        <div class="eyebrow">무료 · 회원가입 없음</div>
         <h1>우리 채널 디자인 가이드 만들기</h1>
-        <p>AI로 우리 채널의 디자인 기준을 만들어 드립니다.</p>
+        <p>질문에 답하면, 우리 채널·사업의 방향이 한 장의 디자인 기준 문서로 정리됩니다.</p>
         <div class="guide-grid">
           <div class="guide-block">
             <strong>이게 뭔가요</strong>
@@ -757,7 +871,7 @@
           </div>
           <div class="guide-block">
             <strong>왜 진지하게 답해야 하나요</strong>
-            <p>이 질문지는 실제 디자인 회의에서 쓰는 질문지와 같은 구조입니다. 이렇게 만들어지는 디자인 기준은 보통 수십만~수백만 원짜리 작업입니다. 천천히, 솔직하게 답할수록 결과가 좋아집니다.</p>
+            <p>이 질문지는 실제 디자인 회의에서 쓰는 질문지와 같은 구조입니다. 보통은 전문가와 여러 번 회의를 거쳐 정하는 기준을, 여기서 직접 정리해볼 수 있습니다. 천천히, 솔직하게 답할수록 결과가 좋아집니다.</p>
           </div>
           <div class="guide-block">
             <strong>이걸로 뭘 하나요</strong>
@@ -765,9 +879,18 @@
           </div>
         </div>
         <div class="notice-row">
-          <span class="notice">서버 저장 없음</span>
-          <span class="notice">Gemini 키는 브라우저 메모리에서만 사용</span>
-          <span class="notice">키 없이 ZIP으로 받기 가능</span>
+          <span class="notice">
+            <svg class="notice-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+            서버 저장 없음
+          </span>
+          <span class="notice">
+            <svg class="notice-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="15" r="4"></circle><path d="M10 12l8-8"></path><path d="M15 7l2 2"></path><path d="M17 5l2 2"></path></svg>
+            Gemini 키는 브라우저 메모리에서만 사용
+          </span>
+          <span class="notice">
+            <svg class="notice-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M5 21h14"></path></svg>
+            키 없이 ZIP으로 받기 가능
+          </span>
         </div>
       </div>
       <aside class="status-panel" id="form-status">
@@ -784,31 +907,36 @@
       <div class="sample-preview-head">
         <div>
           <h2 class="sample-preview-title">먼저 결과 예시를 보고 시작하세요</h2>
-          <p class="sample-preview-copy">디자인 기준이 있으면 색상·글자·썸네일·카드뉴스 톤이 어떻게 맞춰지는지 볼 수 있습니다.</p>
+          <p class="sample-preview-copy">같은 정보도 디자인 기준에 따라 느낌이 달라집니다. 기준이 없으면 색·글자·배치가 매번 제각각이 됩니다.</p>
         </div>
         <a class="sample-link" href="card-news-samples.html">샘플 크게 보기</a>
       </div>
       <div class="sample-cards">
-        <a class="sample-card-link" href="card-news-samples.html">
+        <a class="sample-card-link is-standard" href="card-news-samples.html">
           <img class="sample-thumb" src="assets/card-news-samples/design-md-card-01.png" alt="DESIGN.md가 있는 카드뉴스 샘플 1">
-          <span class="sample-caption">DESIGN.md 있음 · Apple HIG 계열</span>
+          <span class="sample-caption">기준 A · 차분한 신뢰형</span>
         </a>
-        <a class="sample-card-link" href="card-news-samples.html">
+        <a class="sample-card-link is-standard" href="card-news-samples.html">
           <img class="sample-thumb" src="assets/card-news-samples/design-md-card-02.png" alt="DESIGN.md가 있는 카드뉴스 샘플 2">
-          <span class="sample-caption">DESIGN.md 있음 · Material Design 3 계열</span>
+          <span class="sample-caption">기준 B · 또렷한 강조형</span>
         </a>
-        <a class="sample-card-link" href="card-news-samples.html">
+        <a class="sample-card-link is-loose" href="card-news-samples.html">
           <img class="sample-thumb" src="assets/card-news-samples/no-design-md-card-03.png" alt="DESIGN.md 없이 만든 카드뉴스 비교 샘플">
-          <span class="sample-caption">DESIGN.md 없음 · 기준 없음</span>
+          <span class="sample-caption">기준 없음 · 제각각</span>
         </a>
       </div>
     </section>
+
+    <figure class="user-voice">
+      <blockquote>"디자인 가이드를 만들면서 우리 채널을 다시 한번 정리해볼 수 있었습니다."</blockquote>
+      <figcaption>— 실제 사용 고객</figcaption>
+    </figure>
 
     <section class="start-panel" aria-label="디자인 가이드 만들기 시작">
       <p>예시를 확인했다면, 아래 버튼을 눌러 질문지를 열고 내 채널 기준을 정리해보세요.</p>
       <div class="start-actions">
         <button class="btn secondary" type="button" id="start-form-btn" aria-controls="design-form-section form-status" aria-expanded="false">무료로 디자인 가이드 만들기</button>
-        <span class="start-note">질문지는 같은 페이지에서 바로 열립니다.</span>
+        <span class="start-note">질문지는 같은 페이지에서 바로 열립니다 · 약 8개 질문</span>
       </div>
     </section>
 
@@ -848,6 +976,10 @@
               <p>무료 계정으로도 사용할 수 있고, 키는 이 브라우저 메모리에서만 쓰입니다.</p>
             </div>
             <button class="btn" type="button" id="generate-btn">Gemini로 바로 만들기</button>
+            <div class="gen-status" id="gen-status" role="status" aria-live="polite">
+              <span class="gen-status-dot" aria-hidden="true"></span>
+              <span id="gen-status-text"></span>
+            </div>
           </div>
           <div class="small-note">
             키를 발급받은 뒤 이 화면으로 돌아와 입력창에 붙여넣으면 됩니다.
@@ -870,7 +1002,6 @@
     const GEMINI_FALLBACK_MODELS = ["gemini-2.5-flash-lite", "gemini-2.0-flash"];
     const TALLY_URL = "https://tally.so/r/Y5kVV6";
     const CONTACT_LABEL = "이메일 hammedia002@gmail.com 또는 홈페이지 hammedia.github.io/hammedia";
-    const FORM_OPEN_STORAGE_KEY = "designBriefFormOpened";
 
     const BASE_FIELDS = [
       { label: "채널명 / 클라이언트명", inputId: "channel-name", fallback: "" },
@@ -1755,6 +1886,17 @@
       toast.style.color = isError ? "var(--red)" : "var(--green)";
     }
 
+    function setGenerationStatus(message, stateName) {
+      const status = document.getElementById("gen-status");
+      const text = document.getElementById("gen-status-text");
+      if (!status || !text) return;
+
+      text.textContent = message || "";
+      status.classList.toggle("is-visible", Boolean(message));
+      status.classList.toggle("is-error", stateName === "error");
+      status.classList.toggle("is-done", stateName === "done");
+    }
+
     function geminiModelsForAttempt() {
       return [GEMINI_MODEL].concat(GEMINI_FALLBACK_MODELS).filter(function(model, index, models) {
         return model && models.indexOf(model) === index;
@@ -1803,7 +1945,7 @@
       return status === 503 || /high demand|try again later|overload|unavailable|temporar|empty response/i.test(raw);
     }
 
-    async function requestGeminiDesign(key, prompt) {
+    async function requestGeminiDesign(key, prompt, onFallbackRetry) {
       const models = geminiModelsForAttempt();
       const attempts = [];
 
@@ -1824,7 +1966,10 @@
         } catch (error) {
           const networkMessage = friendlyGeminiError(error.message, 0);
           attempts.push({ model, status: 0, message: networkMessage });
-          if (index < models.length - 1 && canRetryGeminiError(error.message, 0)) continue;
+          if (index < models.length - 1 && canRetryGeminiError(error.message, 0)) {
+            if (typeof onFallbackRetry === "function") onFallbackRetry();
+            continue;
+          }
           throw new Error(networkMessage);
         }
 
@@ -1832,7 +1977,10 @@
           const rawMessage = data && data.error && data.error.message ? data.error.message : "Gemini API 호출에 실패했습니다.";
           const message = friendlyGeminiError(rawMessage, response.status);
           attempts.push({ model, status: response.status, message });
-          if (index < models.length - 1 && canRetryGeminiError(rawMessage, response.status)) continue;
+          if (index < models.length - 1 && canRetryGeminiError(rawMessage, response.status)) {
+            if (typeof onFallbackRetry === "function") onFallbackRetry();
+            continue;
+          }
           throw new Error(message);
         }
 
@@ -1843,7 +1991,10 @@
         }
 
         attempts.push({ model, status: response.status, message: "Gemini 응답이 비어 있습니다." });
-        if (index < models.length - 1) continue;
+        if (index < models.length - 1) {
+          if (typeof onFallbackRetry === "function") onFallbackRetry();
+          continue;
+        }
       }
 
       throw new Error("Gemini 응답이 비어 있습니다.");
@@ -1853,6 +2004,7 @@
       const key = document.getElementById("gemini-key").value.trim();
       if (!key) {
         setToast("Gemini API 키를 먼저 입력해주세요. 키는 저장하지 않습니다.", true);
+        setGenerationStatus("Gemini API 키를 먼저 입력해주세요.", "error");
         return;
       }
 
@@ -1860,11 +2012,15 @@
       const preview = document.getElementById("design-preview");
       button.disabled = true;
       button.textContent = "생성 중";
+      setGenerationStatus("Gemini 키 확인하고 요청 보내는 중…");
       setToast("Gemini가 DESIGN.md 초안을 만드는 중입니다.", false);
 
       try {
-        const result = await requestGeminiDesign(key, buildDesignPrompt());
+        const result = await requestGeminiDesign(key, buildDesignPrompt(), function() {
+          setGenerationStatus("기본 모델이 바빠 가벼운 모델로 다시 시도 중…");
+        });
         state.generatedDesign = result.design;
+        setGenerationStatus("시각 스타일시트 정리하는 중…");
         state.generatedStyleSheet = buildVisualStyleSheetFromDesign(state.generatedDesign);
 
         preview.textContent = state.generatedDesign;
@@ -1877,8 +2033,10 @@
             : "초안과 시각 스타일시트가 생성됐습니다. 바로 ZIP을 받을 수 있습니다.",
           false
         );
+        setGenerationStatus("완료 — 아래에서 ZIP을 받으세요.", "done");
       } catch (error) {
         setToast(error.message || "생성 중 오류가 발생했습니다.", true);
+        setGenerationStatus(error.message || "생성 중 오류가 발생했습니다.", "error");
       } finally {
         button.disabled = false;
         button.textContent = "Gemini로 바로 만들기";
@@ -1893,19 +2051,11 @@
       window.open(TALLY_URL, "_blank", "noopener,noreferrer");
     }
 
-    function storageGet(key) {
+    function clearLegacyFormOpenState() {
       try {
-        return window.localStorage.getItem(key);
+        window.localStorage.removeItem("designBriefFormOpened");
       } catch (error) {
-        return null;
-      }
-    }
-
-    function storageSet(key, value) {
-      try {
-        window.localStorage.setItem(key, value);
-      } catch (error) {
-        // UI state persistence is optional. Do not block the form if storage is unavailable.
+        // Clearing the old open-state key is optional. The form still starts collapsed.
       }
     }
 
@@ -1922,7 +2072,6 @@
       statusPanel.setAttribute("aria-hidden", String(!isOpen));
       formSection.setAttribute("aria-hidden", String(!isOpen));
 
-      if (isOpen) storageSet(FORM_OPEN_STORAGE_KEY, "true");
       if (isOpen && shouldScroll) {
         const firstQuestion = document.querySelector('[data-question-id="P1"]') || formSection;
         const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1935,8 +2084,8 @@
 
     function initializeFormDisclosure() {
       const startButton = document.getElementById("start-form-btn");
-      const wasOpened = storageGet(FORM_OPEN_STORAGE_KEY) === "true";
-      setFormOpen(wasOpened, { scroll: false });
+      clearLegacyFormOpenState();
+      setFormOpen(false, { scroll: false });
       startButton.addEventListener("click", function() {
         setFormOpen(true, { scroll: true });
       });

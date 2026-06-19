@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>다정한 디지털 교실 Visual Style Sheet</title>
+<style>
+:root{--bg:#F8F4EC;--body-ink:#000000;--paper:#FFFFFF;--panel:#FFFFFF;--ink:#000000;--muted:#141414;--panel-ink:#000000;--panel-muted:#141414;--line:#DAD7D0;--accent:#6B4F3F;--accent-safe:#6B4F3F;--on-accent:#FFFFFF;--warning:#E8A87C;--warning-safe:#E8A87C;--on-warning:#000000;--incomplete-surface:#FCFBF8;}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--body-ink);font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;line-height:1.55}.page{width:min(1080px,calc(100% - 28px));margin:0 auto;padding:28px 0 56px}.hero,.section,.footer{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 45px rgba(0,0,0,.18)}.hero{padding:24px;margin-bottom:14px}.eyebrow{display:inline-flex;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--accent-safe);color:var(--on-accent);font-size:11px;font-weight:850}.badge{display:inline-flex;margin-left:8px;padding:4px 10px;border-radius:999px;background:var(--panel);color:var(--panel-ink);border:1px solid var(--line);font-size:11px;font-weight:850}h1{margin:12px 0 8px;font-size:28px;line-height:1.15;color:var(--ink)}p{margin:0;color:var(--muted)}.section{padding:20px;margin-bottom:14px}.section h2{margin:0 0 14px;font-size:19px;color:var(--ink)}.color-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.color-card,.type-card{display:grid;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--panel-ink)}.color-card{grid-template-columns:86px 1fr}.swatch{height:86px;border:1px solid var(--line);border-radius:14px;background:var(--swatch,var(--bg))}.color-card h3{margin:0 0 4px;font-size:16px;color:var(--panel-ink)}.color-card p{color:var(--panel-muted)}.color-card strong{display:inline-flex;margin-top:8px;padding:3px 8px;border-radius:999px;background:var(--accent-safe);color:var(--on-accent);font-size:13px}.is-incomplete{opacity:.86}.is-incomplete .swatch{background:repeating-linear-gradient(135deg,var(--incomplete-surface) 0 10px,var(--panel) 10px 20px)}.type-stack{display:grid;gap:10px}.type-meta{display:flex;gap:8px;justify-content:space-between;color:var(--panel-muted);font-size:12px}.type-card p{margin-top:4px;color:var(--panel-ink);line-height:1.15;word-break:keep-all}.type-card em{display:inline-flex;width:max-content;padding:3px 8px;border-radius:999px;background:var(--accent-safe);color:var(--on-accent);font-style:normal;font-size:12px;font-weight:800}.do-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.do-box{padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--panel-ink)}.do-box h3{margin:0 0 10px;font-size:16px;color:var(--panel-ink)}.do-box ul{display:grid;gap:8px;margin:0;padding-left:20px;color:var(--panel-muted)}.footer{padding:18px;color:var(--muted);font-size:13px}@media(max-width:760px){.color-grid,.do-grid{grid-template-columns:1fr}.color-card{grid-template-columns:1fr}h1{font-size:23px}.type-card p{font-size:clamp(24px,10vw,44px)!important}}
+</style>
+</head>
+<body>
+<main class="page">
+<header class="hero"><span class="eyebrow">HAM MEDIA VISUAL STYLE SHEET</span><span class="badge">무료 초안 — 일부 항목은 완성본에서 정리됩니다</span><h1>다정한 디지털 교실</h1><p>DESIGN.md의 색상·폰트·Do/Don’t를 눈으로 확인하는 무료 초안입니다. 흐리게 표시된 항목은 완성본에서 정리됩니다.</p></header>
+<section class="section"><h2>색상 팔레트</h2><div class="color-grid"><article class="color-card "><div class="swatch" style="--swatch:#F8F4EC"></div><div><h3>Warm Ivory</h3><p>메인 배경 (Main Background)</p><strong>#F8F4EC</strong></div></article><article class="color-card "><div class="swatch" style="--swatch:#6B4F3F"></div><div><h3>Calm Brown</h3><p>강조색, 핵심 텍스트, 버튼 (Accent, Emphasis Text, Buttons)</p><strong>#6B4F3F</strong></div></article><article class="color-card "><div class="swatch" style="--swatch:#E8A87C"></div><div><h3>Soft Apricot</h3><p>경고, 주의, 안내 (Warning, Caution, Notice)</p><strong>#E8A87C</strong></div></article><article class="color-card "><div class="swatch" style="--swatch:#333333"></div><div><h3>Reading Charcoal</h3><p>기본 본문 텍스트 (Primary Body Text)</p><strong>#333333</strong></div></article><article class="color-card "><div class="swatch" style="--swatch:#FFFFFF"></div><div><h3>Base White</h3><p>보조 배경, 강조 요소 (Secondary Background, Highlight Elements)</p><strong>#FFFFFF</strong></div></article><article class="color-card "><div class="swatch" style="--swatch:#ADD8E6"></div><div><h3>Light Sky Blue</h3><p>작은 안내 라벨, 보조 강조 (Small Labels, Secondary Accent)</p><strong>#ADD8E6</strong></div></article></div></section>
+<section class="section"><h2>타이포그래피 샘플</h2><div class="type-stack"><article class="type-card is-incomplete"><div class="type-meta"><strong>Typography</strong><span>완성본에서 정리 · 34px</span></div><p style="font-family:&quot;완성본에서 정리&quot;, Pretendard, system-ui, sans-serif;font-size:34px;">다람쥐 헌 쳇바퀴 Aa Bb 123</p><em>이 항목은 완성본에서 정리됩니다</em></article></div></section>
+<section class="section"><h2>Do / Don’t</h2><div class="do-grid"><div class="do-box"><h3>Do</h3><ul><li>채널 목적과 시청자 신뢰를 먼저 둔다</li></ul></div><div class="do-box"><h3>Don’t</h3><ul><li>완성되지 않은 기준은 완성값처럼 사용하지 않는다</li></ul></div></div></section>
+<footer class="footer">이 스타일 시트는 무료 초안입니다. 완성본 제작 문의: hammedia002@gmail.com · https://hammedia.github.io/hammedia</footer>
+<script type="application/json" id="style-data">{
+  "channel": "다정한 디지털 교실",
+  "status": "raw_draft",
+  "colors": [
+    {
+      "token": "Warm Ivory",
+      "hex": "#F8F4EC",
+      "role": "메인 배경 (Main Background)",
+      "complete": true,
+      "conflict": false
+    },
+    {
+      "token": "Calm Brown",
+      "hex": "#6B4F3F",
+      "role": "강조색, 핵심 텍스트, 버튼 (Accent, Emphasis Text, Buttons)",
+      "complete": true,
+      "conflict": false
+    },
+    {
+      "token": "Soft Apricot",
+      "hex": "#E8A87C",
+      "role": "경고, 주의, 안내 (Warning, Caution, Notice)",
+      "complete": true,
+      "conflict": false
+    },
+    {
+      "token": "Reading Charcoal",
+      "hex": "#333333",
+      "role": "기본 본문 텍스트 (Primary Body Text)",
+      "complete": true,
+      "conflict": false
+    },
+    {
+      "token": "Base White",
+      "hex": "#FFFFFF",
+      "role": "보조 배경, 강조 요소 (Secondary Background, Highlight Elements)",
+      "complete": true,
+      "conflict": false
+    },
+    {
+      "token": "Light Sky Blue",
+      "hex": "#ADD8E6",
+      "role": "작은 안내 라벨, 보조 강조 (Small Labels, Secondary Accent)",
+      "complete": true,
+      "conflict": false
+    }
+  ],
+  "typography": [
+    {
+      "role": "Typography",
+      "font": "완성본에서 정리",
+      "sample_size_px": 34,
+      "complete": false,
+      "conflict": false
+    }
+  ],
+  "dos": [],
+  "donts": [],
+  "contrast_audit": {
+    "body": 19.14,
+    "paper": 21,
+    "panel": 21,
+    "accent": 7.46,
+    "warning": 10.32
+  }
+}</script>
+</main>
+</body>
+</html>

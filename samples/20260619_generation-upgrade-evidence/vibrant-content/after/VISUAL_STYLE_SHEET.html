@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>퀘스트 예능 연구소 Visual Style Sheet</title>
+<style>
+:root{--bg:#24143A;--body-ink:#FFFFFF;--paper:#3A2E50;--panel:#3A2E50;--ink:#FFFFFF;--muted:#EFEEF1;--panel-ink:#FFFFFF;--panel-muted:#EFEEF1;--line:#594C69;--accent:#FFD23F;--accent-safe:#FFD23F;--on-accent:#000000;--warning:#FF4B4B;--warning-safe:#FF6666;--on-warning:#000000;--incomplete-surface:#38294C;}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--body-ink);font-family:Pretendard,"Noto Sans KR",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;line-height:1.55}.page{width:min(1080px,calc(100% - 28px));margin:0 auto;padding:28px 0 56px}.hero,.section,.footer{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 45px rgba(0,0,0,.18)}.hero{padding:24px;margin-bottom:14px}.eyebrow{display:inline-flex;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--accent-safe);color:var(--on-accent);font-size:11px;font-weight:850}.badge{display:inline-flex;margin-left:8px;padding:4px 10px;border-radius:999px;background:var(--panel);color:var(--panel-ink);border:1px solid var(--line);font-size:11px;font-weight:850}h1{margin:12px 0 8px;font-size:28px;line-height:1.15;color:var(--ink)}p{margin:0;color:var(--muted)}.section{padding:20px;margin-bottom:14px}.section h2{margin:0 0 14px;font-size:19px;color:var(--ink)}.color-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.color-card,.type-card{display:grid;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--panel-ink)}.color-card{grid-template-columns:86px 1fr}.swatch{height:86px;border:1px solid var(--line);border-radius:14px;background:var(--swatch,var(--bg))}.color-card h3{margin:0 0 4px;font-size:16px;color:var(--panel-ink)}.color-card p{color:var(--panel-muted)}.color-card strong{display:inline-flex;margin-top:8px;padding:3px 8px;border-radius:999px;background:var(--accent-safe);color:var(--on-accent);font-size:13px}.is-incomplete{opacity:.86}.is-incomplete .swatch{background:repeating-linear-gradient(135deg,var(--incomplete-surface) 0 10px,var(--panel) 10px 20px)}.type-stack{display:grid;gap:10px}.type-meta{display:flex;gap:8px;justify-content:space-between;color:var(--panel-muted);font-size:12px}.type-card p{margin-top:4px;color:var(--panel-ink);line-height:1.15;word-break:keep-all}.type-card em{display:inline-flex;width:max-content;padding:3px 8px;border-radius:999px;background:var(--accent-safe);color:var(--on-accent);font-style:normal;font-size:12px;font-weight:800}.do-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.do-box{padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--panel-ink)}.do-box h3{margin:0 0 10px;font-size:16px;color:var(--panel-ink)}.do-box ul{display:grid;gap:8px;margin:0;padding-left:20px;color:var(--panel-muted)}.footer{padding:18px;color:var(--muted);font-size:13px}@media(max-width:760px){.color-grid,.do-grid{grid-template-columns:1fr}.color-card{grid-template-columns:1fr}h1{font-size:23px}.type-card p{font-size:clamp(24px,10vw,44px)!important}}
+</style>
+</head>
+<body>
+<main class="page">
+<header class="hero"><span class="eyebrow">HAM MEDIA VISUAL STYLE SHEET</span><span class="badge">무료 초안 — 일부 항목은 완성본에서 정리됩니다</span><h1>퀘스트 예능 연구소</h1><p>DESIGN.md의 색상·폰트·Do/Don’t를 눈으로 확인하는 무료 초안입니다. 흐리게 표시된 항목은 완성본에서 정리됩니다.</p></header>
+<section class="section"><h2>색상 팔레트</h2><div class="color-grid"><article class="color-card "><div class="swatch" style="--swatch:#24143A"></div><div><h3>Base Surface Color:</h3><p>Base Surface Color</p><strong>#24143A</strong></div></article><article class="color-card "><div class="swatch" style="--swatch:#FFD23F"></div><div><h3>Accent Color:</h3><p>Accent Color</p><strong>#FFD23F</strong></div></article><article class="color-card "><div class="swatch" style="--swatch:#FF4FA3"></div><div><h3>Energetic Accent Color:</h3><p>Energetic Accent Color</p><strong>#FF4FA3</strong></div></article><article class="color-card "><div class="swatch" style="--swatch:#FF4B4B"></div><div><h3>Warning Color:</h3><p>Warning Color</p><strong>#FF4B4B</strong></div></article><article class="color-card "><div class="swatch" style="--swatch:#FFFFFF"></div><div><h3>Reading Text Color:</h3><p>Reading Text Color</p><strong>#FFFFFF</strong></div></article><article class="color-card "><div class="swatch" style="--swatch:#3A2E50"></div><div><h3>Support Surface Color:</h3><p>Support Surface Color</p><strong>#3A2E50</strong></div></article></div></section>
+<section class="section"><h2>타이포그래피 샘플</h2><div class="type-stack"><article class="type-card is-incomplete"><div class="type-meta"><strong>Typography</strong><span>완성본에서 정리 · 34px</span></div><p style="font-family:&quot;완성본에서 정리&quot;, Pretendard, system-ui, sans-serif;font-size:34px;">다람쥐 헌 쳇바퀴 Aa Bb 123</p><em>이 항목은 완성본에서 정리됩니다</em></article></div></section>
+<section class="section"><h2>Do / Don’t</h2><div class="do-grid"><div class="do-box"><h3>Do</h3><ul><li>채널 목적과 시청자 신뢰를 먼저 둔다</li></ul></div><div class="do-box"><h3>Don’t</h3><ul><li>피해야 할 것 (Don&#39;t)</li></ul></div></div></section>
+<footer class="footer">이 스타일 시트는 무료 초안입니다. 완성본 제작 문의: hammedia002@gmail.com · https://hammedia.github.io/hammedia</footer>
+<script type="application/json" id="style-data">{
+  "channel": "퀘스트 예능 연구소",
+  "status": "raw_draft",
+  "colors": [
+    {
+      "token": "Base Surface Color:",
+      "hex": "#24143A",
+      "role": "Base Surface Color",
+      "complete": true,
+      "conflict": false
+    },
+    {
+      "token": "Accent Color:",
+      "hex": "#FFD23F",
+      "role": "Accent Color",
+      "complete": true,
+      "conflict": false
+    },
+    {
+      "token": "Energetic Accent Color:",
+      "hex": "#FF4FA3",
+      "role": "Energetic Accent Color",
+      "complete": true,
+      "conflict": false
+    },
+    {
+      "token": "Warning Color:",
+      "hex": "#FF4B4B",
+      "role": "Warning Color",
+      "complete": true,
+      "conflict": false
+    },
+    {
+      "token": "Reading Text Color:",
+      "hex": "#FFFFFF",
+      "role": "Reading Text Color",
+      "complete": true,
+      "conflict": false
+    },
+    {
+      "token": "Support Surface Color:",
+      "hex": "#3A2E50",
+      "role": "Support Surface Color",
+      "complete": true,
+      "conflict": false
+    }
+  ],
+  "typography": [
+    {
+      "role": "Typography",
+      "font": "완성본에서 정리",
+      "sample_size_px": 34,
+      "complete": false,
+      "conflict": false
+    }
+  ],
+  "dos": [],
+  "donts": [
+    "피해야 할 것 (Don't)"
+  ],
+  "contrast_audit": {
+    "body": 16.99,
+    "paper": 12.45,
+    "panel": 12.45,
+    "accent": 14.54,
+    "warning": 7.34
+  }
+}</script>
+</main>
+</body>
+</html>

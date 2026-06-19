@@ -805,12 +805,12 @@
       }
 
       .guide-grid, .sample-cards {
-        display: flex;
+        display: grid;
+        grid-template-columns: 1fr;
         width: 100%;
         max-width: 100%;
-        overflow-x: auto;
-        padding-bottom: 4px;
-        scroll-snap-type: x proximity;
+        overflow: visible;
+        padding-bottom: 0;
       }
 
       .sample-preview-head {
@@ -819,8 +819,7 @@
       }
 
       .guide-block, .sample-card-link {
-        flex: 0 0 min(260px, 82%);
-        scroll-snap-align: start;
+        width: 100%;
       }
 
       .start-actions {

@@ -1143,7 +1143,7 @@
       {
         number: 1,
         title: "핵심 질문",
-        copy: "먼저 쉬운 질문 8개만 답해도 DESIGN.md 초안을 만들 수 있습니다.",
+        copy: "먼저 쉬운 핵심 질문에 답하면 DESIGN.md 초안을 만들 수 있습니다.",
         questions: [
           textQ("P1", "무엇을 만들고 싶나요?", true, "예: 유튜브 썸네일과 카드뉴스를 같은 톤으로 만들고 싶어요."),
           textQ("P2", "누구에게 보여줄 건가요?", true, "예: 우리 채널을 처음 보는 30~40대 직장인, 디자인을 잘 모르는 고객."),
@@ -1152,7 +1152,8 @@
           textQ("P5", "꼭 들어가야 할 자료가 있나요?", false, "예: 로고, 대표 사진, 홈페이지 주소, 고정 문구. 없으면 비워두세요."),
           textQ("P6", "좋아하는 예시가 있나요?", false, "예: 링크, 이미지 이름, 브랜드명, 또는 그냥 '차분한 잡지 느낌'처럼 적어도 됩니다."),
           textQ("P7", "싫어하는 예시가 있나요?", false, "예: 너무 화려한 유튜브 썸네일, 네온색, 스톡 이미지 느낌."),
-          selectQ("P8", "어디에 쓸 건가요?", true, ["유튜브 썸네일", "유튜브 영상 화면", "Shorts / 릴스", "카드뉴스", "PDF / 강의안", "PPT / 슬라이드", "SNS 포스트", "홈페이지", "기타: ___"])
+          selectQ("P8", "어디에 쓸 건가요?", true, ["유튜브 썸네일", "유튜브 영상 화면", "Shorts / 릴스", "카드뉴스", "PDF / 강의안", "PPT / 슬라이드", "SNS 포스트", "홈페이지", "기타: ___"]),
+          selectQ("P9", "화면에서 제일 먼저 눈에 들어와야 하는 것은?", true, ["사진/콘텐츠", "글자와 정보", "브랜드 색", "버튼/신청 행동"], true)
         ]
       }
     ];
@@ -1237,7 +1238,8 @@
           selectQ("8-1", "자주 쓰는 컴포넌트", false, ["Info Card (정보 박스)", "Expert Comment Box (전문가 코멘트)", "Checklist (체크리스트)", "Caution / Notice Block (주의 문구)", "Comparison Card (비교표)", "Quote Block (인용구)", "Stat Block (숫자 강조)", "Timeline / Process Block (단계 흐름)", "Before / After Notice", "Thumbnail Text Block", "Shorts Caption Label", "기타: ___"]),
           selectQ("8-2", "차트 / 도표 스타일", false, ["숫자가 명확하게 보이는 실무형", "부드럽고 예쁜 인포그래픽형", "전문 보고서형", "유튜브 설명용 직관적 형태"]),
           selectQ("8-3", "아이콘 / 일러스트 스타일", false, ["선으로 된 얇은 아이콘", "둥글고 귀여운 아이콘", "단순한 픽토그램", "고급스러운 미니멀 아이콘", "사용하지 않음"]),
-          selectQ("8-4", "다이어그램 / 설명 그래픽 필요 여부", false, ["예 (채널 유형: ___)", "아니오"])
+          selectQ("8-4", "다이어그램 / 설명 그래픽 필요 여부", false, ["예 (채널 유형: ___)", "아니오"]),
+          selectQ("8-5", "버튼은 한눈에 또렷해야 하나, 차분히 섞여야 하나?", false, ["한눈에 또렷하게", "주요 버튼만 또렷", "전체에 차분히 섞이게"], true)
         ]
       },
       {
@@ -1602,7 +1604,7 @@
         "- Do not invent final brand decisions. If answers conflict, show both and mark CONFLICT in Korean.",
         "- If medical, finance, legal, advertising, or copyright risk appears, reflect it in Do's and Don'ts and imagery rules.",
         "- If exact values such as HEX, pixel size, margin, or font size are missing, propose reasonable draft values and mark them adjustable.",
-        "- Use the 8 public_easy core answers first. Use advanced answers only when they are filled.",
+        "- Use the public_easy core answers first, including the first visual-attention answer to set screen hierarchy. Use advanced answers only when filled, including the button-emphasis answer to set button hierarchy.",
         "- Include 사용처별 규칙 (Output-Specific Rules) for only the selected outputs and ratios.",
         "- In 시각 분위기 (Visual Theme), include a short layout principle: separate content with the lightest tool first — whitespace -> type-size hierarchy -> background-surface contrast -> (only if still needed) a thin divider or soft shadow. This is NOT a ban on cards; cards are right for repeated items, forms, comparison tables, and result cards. The point is not to wrap everything in a card by habit; lead with whitespace and hierarchy.",
         "- In 해야 할 것 / 피해야 할 것 (Do / Don't), keep each item to ONE short line with a brief reason. Frame restraint as principles, not bans: solid surfaces by default, gradients only if hierarchy needs them, shadows only for elevation in 1-2 levels, about 2-3 colors plus 1 accent and 1-2 font families for THIS channel, and one consistent corner radius. Include one short echo: don't start with boxes; separate with whitespace and hierarchy first.",

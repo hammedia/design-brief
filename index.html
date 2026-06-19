@@ -762,6 +762,125 @@
       font-size: 12px;
     }
 
+    .logo-upload {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--chip);
+    }
+
+    .logo-upload-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .logo-upload-title span {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      border-radius: var(--radius-pill);
+      background: var(--paper);
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .logo-upload p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .logo-upload-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .logo-upload input[type="file"] {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 12px;
+    }
+
+    .logo-clear-btn {
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--paper);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .logo-clear-btn[hidden] {
+      display: none;
+    }
+
+    .logo-status {
+      min-height: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .logo-status.is-error {
+      color: var(--red);
+      font-weight: 800;
+    }
+
+    .logo-status.is-ok {
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .logo-preview {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 58px;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--paper);
+    }
+
+    .logo-preview[hidden] {
+      display: none;
+    }
+
+    .logo-preview img {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: var(--chip);
+    }
+
+    .logo-preview span {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
     .preview {
       display: none;
       margin-top: 10px;
@@ -923,6 +1042,14 @@
         width: 100%;
       }
 
+      .logo-upload-row {
+        grid-template-columns: 1fr;
+      }
+
+      .logo-clear-btn {
+        width: 100%;
+      }
+
       .style-preview-head {
         display: grid;
       }
@@ -1062,6 +1189,19 @@
         <div class="path-box">
           <strong>키 없이 파일로 받기</strong>
           <p>사용법.txt와 AI에 붙여넣을 답변+프롬프트.md를 ZIP으로 받습니다.</p>
+          <div class="logo-upload" id="logo-upload">
+            <label class="logo-upload-title" for="logo-file">
+              로고 파일 첨부
+              <span>선택</span>
+            </label>
+            <p>로고가 있으면 여기에 첨부하세요. 파일은 서버에 저장되지 않고, 다운로드 ZIP에만 함께 담깁니다. 햄미디어에 제작 문의를 하실 때만 메일로 따로 보내주세요.</p>
+            <div class="logo-upload-row">
+              <input id="logo-file" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+              <button class="logo-clear-btn" type="button" id="clear-logo-btn" hidden>첨부 취소</button>
+            </div>
+            <div class="logo-status" id="logo-status" role="status" aria-live="polite">첨부된 로고 없음</div>
+            <div class="logo-preview" id="logo-preview" hidden></div>
+          </div>
           <button class="btn secondary" type="button" id="download-brief-btn">무료로 파일 받기</button>
         </div>
 
@@ -1132,6 +1272,15 @@
     const GEMINI_FALLBACK_MODELS = ["gemini-2.5-flash-lite", "gemini-2.0-flash"];
     const TALLY_URL = "https://tally.so/r/Y5kVV6";
     const CONTACT_LABEL = "이메일 hammedia002@gmail.com 또는 홈페이지 hammedia.github.io/hammedia";
+    const MAX_LOGO_FILE_BYTES = 10 * 1024 * 1024;
+    const LOGO_MIME_BY_EXTENSION = {
+      png: "image/png",
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      webp: "image/webp",
+      svg: "image/svg+xml"
+    };
+    const LOGO_PREVIEW_EXTENSIONS = ["png", "jpg", "jpeg", "webp"];
 
     const BASE_FIELDS = [
       { label: "채널명 / 클라이언트명", inputId: "channel-name", fallback: "" },
@@ -1297,7 +1446,9 @@
     const state = {
       generatedDesign: "",
       generatedStyleSheet: "",
-      stylePreviewUrl: ""
+      stylePreviewUrl: "",
+      logoAttachment: null,
+      logoPreviewUrl: ""
     };
 
     function textQ(id, heading, required, hint) {
@@ -2256,6 +2407,135 @@
       return stamp.slice(0, 4) + "-" + stamp.slice(4, 6) + "-" + stamp.slice(6, 8);
     }
 
+    function logoExtensionFromName(name) {
+      const match = String(name || "").match(/\.([a-z0-9]+)$/i);
+      return match ? match[1].toLowerCase() : "";
+    }
+
+    function isRasterLogoExtension(extension) {
+      return LOGO_PREVIEW_EXTENSIONS.indexOf(extension) >= 0;
+    }
+
+    function setLogoStatus(message, stateName) {
+      const status = document.getElementById("logo-status");
+      if (!status) return;
+      status.textContent = message || "";
+      status.classList.toggle("is-error", stateName === "error");
+      status.classList.toggle("is-ok", stateName === "ok");
+    }
+
+    function clearLogoPreview() {
+      const preview = document.getElementById("logo-preview");
+      if (state.logoPreviewUrl) {
+        URL.revokeObjectURL(state.logoPreviewUrl);
+        state.logoPreviewUrl = "";
+      }
+      if (!preview) return;
+      preview.innerHTML = "";
+      preview.hidden = true;
+    }
+
+    function clearLogoAttachment(options) {
+      const input = document.getElementById("logo-file");
+      const clearButton = document.getElementById("clear-logo-btn");
+      state.logoAttachment = null;
+      clearLogoPreview();
+      if (input && !(options && options.keepInput)) input.value = "";
+      if (clearButton) clearButton.hidden = true;
+      setLogoStatus("첨부된 로고 없음", "");
+    }
+
+    function validateLogoFile(file) {
+      if (!file) return { ok: false, message: "로고 파일을 찾지 못했습니다." };
+
+      const extension = logoExtensionFromName(file.name);
+      const expectedMime = LOGO_MIME_BY_EXTENSION[extension];
+      if (!expectedMime) {
+        return { ok: false, message: "10MB 이하 PNG·JPG·WEBP·SVG 파일만 첨부할 수 있어요." };
+      }
+
+      if (file.size > MAX_LOGO_FILE_BYTES) {
+        return { ok: false, message: "로고 파일은 10MB 이하만 첨부할 수 있어요." };
+      }
+
+      if (file.type && file.type !== expectedMime) {
+        return { ok: false, message: "파일 확장자와 실제 형식이 맞지 않습니다. PNG·JPG·WEBP·SVG 파일만 첨부할 수 있어요." };
+      }
+
+      return {
+        ok: true,
+        extension,
+        warning: file.type ? "" : "파일 형식을 브라우저가 알려주지 않아 확장자 기준으로만 확인했습니다."
+      };
+    }
+
+    function renderLogoPreview(file, extension) {
+      const preview = document.getElementById("logo-preview");
+      if (!preview) return;
+
+      clearLogoPreview();
+      preview.hidden = false;
+
+      if (isRasterLogoExtension(extension)) {
+        state.logoPreviewUrl = URL.createObjectURL(file);
+        const img = document.createElement("img");
+        img.src = state.logoPreviewUrl;
+        img.alt = "첨부한 로고 미리보기";
+        const label = document.createElement("span");
+        label.textContent = file.name;
+        preview.append(img, label);
+        return;
+      }
+
+      const label = document.createElement("span");
+      label.textContent = file.name + " · SVG는 보안을 위해 화면에 미리보기하지 않습니다.";
+      preview.append(label);
+    }
+
+    function handleLogoFileChange(event) {
+      const input = event.currentTarget;
+      const files = Array.from(input.files || []);
+      if (!files.length) {
+        clearLogoAttachment({ keepInput: true });
+        return;
+      }
+
+      if (files.length !== 1) {
+        clearLogoAttachment();
+        setLogoStatus("로고는 1개만 첨부할 수 있어요.", "error");
+        return;
+      }
+
+      const file = files[0];
+      const result = validateLogoFile(file);
+      if (!result.ok) {
+        clearLogoAttachment();
+        setLogoStatus(result.message, "error");
+        return;
+      }
+
+      state.logoAttachment = {
+        file,
+        extension: result.extension
+      };
+      renderLogoPreview(file, result.extension);
+
+      const clearButton = document.getElementById("clear-logo-btn");
+      if (clearButton) clearButton.hidden = false;
+      setLogoStatus("첨부됨: " + file.name + (result.warning ? " · " + result.warning : ""), "ok");
+    }
+
+    function filesWithLogoAttachment(files) {
+      const result = files.slice();
+      if (state.logoAttachment) {
+        result.push({
+          name: "logo_original." + state.logoAttachment.extension,
+          content: state.logoAttachment.file
+        });
+      }
+      return result;
+    }
+
     async function downloadZip(filename, files) {
       if (!window.JSZip) {
         setToast("ZIP 생성 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인해주세요.", true);
@@ -2499,10 +2779,10 @@
     }
 
     async function downloadBriefZip() {
-      const ok = await downloadZip(fileSafeName(channelName()) + "-디자인브리프.zip", [
+      const ok = await downloadZip(fileSafeName(channelName()) + "-디자인브리프.zip", filesWithLogoAttachment([
         { name: "사용법.txt", content: buildUsageText() },
         { name: "답변+프롬프트.md", content: buildBriefFile() }
-      ]);
+      ]));
       if (ok) setToast("디자인브리프 ZIP을 다운로드했습니다.", false);
     }
 
@@ -2511,15 +2791,17 @@
         setToast("먼저 DESIGN.md 초안을 생성해주세요.", true);
         return;
       }
-      const ok = await downloadZip(fileSafeName(channelName()) + "-디자인가이드.zip", [
+      const ok = await downloadZip(fileSafeName(channelName()) + "-디자인가이드.zip", filesWithLogoAttachment([
         { name: "사용법.txt", content: buildUsageText() },
         { name: "DESIGN.md", content: state.generatedDesign + "\n" },
         { name: "VISUAL_STYLE_SHEET.html", content: state.generatedStyleSheet || buildVisualStyleSheetFromDesign(state.generatedDesign) }
-      ]);
+      ]));
       if (ok) setToast("디자인가이드 ZIP을 다운로드했습니다.", false);
     }
 
     function bindActions() {
+      document.getElementById("logo-file").addEventListener("change", handleLogoFileChange);
+      document.getElementById("clear-logo-btn").addEventListener("click", clearLogoAttachment);
       document.getElementById("download-brief-btn").addEventListener("click", downloadBriefZip);
       document.getElementById("generate-btn").addEventListener("click", function() {
         generateWithGemini({ mode: "initial" });

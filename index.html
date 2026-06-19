@@ -781,6 +781,99 @@
       display: block;
     }
 
+    .style-preview-panel {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--chip);
+    }
+
+    .style-preview-panel[hidden] {
+      display: none;
+    }
+
+    .style-preview-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .style-preview-head h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .style-preview-head p,
+    .style-preview-loop p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .style-preview-state {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-pill);
+      background: var(--paper);
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .style-preview-panel.is-refreshing .style-preview-state {
+      color: var(--accent);
+    }
+
+    .style-preview-frame-wrap {
+      overflow: hidden;
+      min-height: 420px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+    }
+
+    .style-preview-frame {
+      display: block;
+      width: 100%;
+      height: 520px;
+      border: 0;
+      background: var(--paper);
+    }
+
+    .style-preview-loop {
+      display: grid;
+      gap: 10px;
+    }
+
+    .style-preview-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .style-preview-utility {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .quota-note {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
     .toast {
       margin-top: 10px;
       color: var(--green);
@@ -828,6 +921,22 @@
 
       .start-actions .btn {
         width: 100%;
+      }
+
+      .style-preview-head {
+        display: grid;
+      }
+
+      .style-preview-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .style-preview-frame-wrap {
+        min-height: 340px;
+      }
+
+      .style-preview-frame {
+        height: 420px;
       }
 
       .intro {
@@ -984,7 +1093,29 @@
             키를 발급받은 뒤 이 화면으로 돌아와 입력창에 붙여넣으면 됩니다.
           </div>
           <pre class="preview" id="design-preview"></pre>
-          <button class="btn light" type="button" id="preview-style-btn" disabled>시각 스타일시트 미리보기</button>
+          <section class="style-preview-panel" id="style-preview-panel" aria-label="시각 스타일시트 미리보기" hidden>
+            <div class="style-preview-head">
+              <div>
+                <h3>시각 스타일시트 미리보기</h3>
+                <p>생성된 DESIGN.md를 화면으로 확인합니다. 다시 생성 중에도 이전 미리보기는 그대로 유지됩니다.</p>
+              </div>
+              <span class="style-preview-state" id="style-preview-state">미리보기 준비됨</span>
+            </div>
+            <div class="style-preview-frame-wrap">
+              <iframe class="style-preview-frame" id="style-preview-frame" title="생성된 시각 스타일시트 미리보기" sandbox="" referrerpolicy="no-referrer"></iframe>
+            </div>
+            <div class="style-preview-loop">
+              <p>이 느낌이 맞나요? 아니면 답을 고쳐 다시 만들어 보세요.</p>
+              <div class="style-preview-actions">
+                <button class="btn light" type="button" id="edit-answers-btn">답 수정하기</button>
+                <button class="btn secondary" type="button" id="regenerate-btn" disabled>다시 생성하기</button>
+              </div>
+              <span class="quota-note">다시 생성은 Gemini를 한 번 더 사용합니다. 답을 고치지 않고 크게 보기만 하는 것은 추가 호출이 아닙니다.</span>
+              <div class="style-preview-utility">
+                <button class="btn light" type="button" id="preview-style-btn" disabled>크게 보기</button>
+              </div>
+            </div>
+          </section>
           <button class="btn light" type="button" id="tally-btn">원하시면 연락처 남기기</button>
           <button class="btn secondary" type="button" id="download-design-btn" disabled>디자인가이드 ZIP 다운로드</button>
         </div>
@@ -2045,6 +2176,62 @@
       window.open(state.stylePreviewUrl, "_blank", "noopener,noreferrer");
     }
 
+    function setStylePreviewRefreshing(isRefreshing) {
+      const panel = document.getElementById("style-preview-panel");
+      const stateLabel = document.getElementById("style-preview-state");
+      if (!panel || !stateLabel) return;
+      panel.classList.toggle("is-refreshing", Boolean(isRefreshing));
+      stateLabel.textContent = isRefreshing ? "새 결과 생성 중 · 이전 미리보기 유지" : "미리보기 준비됨";
+    }
+
+    function renderStylePreview(options) {
+      if (!state.generatedStyleSheet) return;
+      const panel = document.getElementById("style-preview-panel");
+      const frame = document.getElementById("style-preview-frame");
+      const openButton = document.getElementById("preview-style-btn");
+      const regenerateButton = document.getElementById("regenerate-btn");
+      if (!panel || !frame) return;
+
+      if (state.stylePreviewUrl) {
+        URL.revokeObjectURL(state.stylePreviewUrl);
+        state.stylePreviewUrl = "";
+      }
+      frame.srcdoc = state.generatedStyleSheet;
+      panel.hidden = false;
+      if (openButton) openButton.disabled = false;
+      if (regenerateButton) regenerateButton.disabled = false;
+      setStylePreviewRefreshing(false);
+
+      if (options && options.scroll) {
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        panel.scrollIntoView({
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+          block: "start"
+        });
+      }
+    }
+
+    function setGeminiButtonsLoading(isLoading, mode) {
+      const generateButton = document.getElementById("generate-btn");
+      const regenerateButton = document.getElementById("regenerate-btn");
+      const isRegenerate = mode === "regenerate";
+
+      if (generateButton) {
+        generateButton.disabled = isLoading;
+        generateButton.textContent = isLoading && !isRegenerate ? "생성 중" : "Gemini로 바로 만들기";
+      }
+
+      if (regenerateButton) {
+        regenerateButton.disabled = isLoading || !state.generatedDesign;
+        regenerateButton.textContent = isLoading && isRegenerate ? "다시 생성 중" : "다시 생성하기";
+      }
+    }
+
+    function scrollToAnswersForEdit() {
+      setFormOpen(true, { scroll: true });
+      setToast("답을 고친 뒤 아래의 다시 생성하기를 눌러 새 미리보기를 확인하세요.", false);
+    }
+
     function channelName() {
       const input = document.querySelector('[data-base-field="채널명 / 클라이언트명"]');
       return (input && input.value.trim()) || "channel";
@@ -2135,7 +2322,7 @@
 
     function isQuotaGeminiError(message, status) {
       const raw = String(message || "");
-      return status === 429 && /quota|rate limit|RESOURCE_EXHAUSTED|exceeded/i.test(raw);
+      return status === 429 || /quota|rate limit|RESOURCE_EXHAUSTED|resource has been exhausted|too many requests|exceeded/i.test(raw);
     }
 
     function geminiRetryText(message) {
@@ -2208,7 +2395,9 @@
       throw new Error("Gemini 응답이 비어 있습니다.");
     }
 
-    async function generateWithGemini() {
+    async function generateWithGemini(options) {
+      const mode = options && options.mode === "regenerate" ? "regenerate" : "initial";
+      const isRegenerate = mode === "regenerate";
       const key = document.getElementById("gemini-key").value.trim();
       if (!key) {
         setToast("Gemini API 키를 먼저 입력해주세요. 키는 저장하지 않습니다.", true);
@@ -2216,12 +2405,18 @@
         return;
       }
 
-      const button = document.getElementById("generate-btn");
       const preview = document.getElementById("design-preview");
-      button.disabled = true;
-      button.textContent = "생성 중";
-      setGenerationStatus("Gemini 키 확인하고 요청 보내는 중…");
-      setToast("Gemini가 DESIGN.md 초안을 만드는 중입니다.", false);
+      setGeminiButtonsLoading(true, mode);
+      if (isRegenerate && state.generatedStyleSheet) {
+        setStylePreviewRefreshing(true);
+      }
+      setGenerationStatus(isRegenerate ? "답변을 반영해 Gemini에 다시 요청하는 중…" : "Gemini 키 확인하고 요청 보내는 중…");
+      setToast(
+        isRegenerate
+          ? "Gemini를 한 번 더 사용해 DESIGN.md와 미리보기를 다시 만드는 중입니다."
+          : "Gemini가 DESIGN.md 초안을 만드는 중입니다.",
+        false
+      );
 
       try {
         const result = await requestGeminiDesign(key, buildDesignPrompt(), function() {
@@ -2233,21 +2428,23 @@
 
         preview.textContent = state.generatedDesign;
         preview.classList.add("active");
-        document.getElementById("preview-style-btn").disabled = false;
+        renderStylePreview({ scroll: !isRegenerate });
         document.getElementById("download-design-btn").disabled = false;
         setToast(
           result.usedFallback
             ? "기본 모델이 혼잡해 가벼운 모델로 다시 시도했습니다. 생성이 완료되었습니다."
-            : "초안과 시각 스타일시트가 생성됐습니다. 바로 ZIP을 받을 수 있습니다.",
+            : (isRegenerate ? "새 초안과 미리보기가 준비됐습니다." : "초안과 시각 스타일시트가 생성됐습니다. 바로 ZIP을 받을 수 있습니다."),
           false
         );
-        setGenerationStatus("완료 — 아래에서 ZIP을 받으세요.", "done");
+        setGenerationStatus(isRegenerate ? "완료 — 새 미리보기로 교체됐습니다." : "완료 — 아래에서 미리보기와 ZIP을 확인하세요.", "done");
       } catch (error) {
         setToast(error.message || "생성 중 오류가 발생했습니다.", true);
         setGenerationStatus(error.message || "생성 중 오류가 발생했습니다.", "error");
+        if (isRegenerate && state.generatedStyleSheet) {
+          setStylePreviewRefreshing(false);
+        }
       } finally {
-        button.disabled = false;
-        button.textContent = "Gemini로 바로 만들기";
+        setGeminiButtonsLoading(false, mode);
       }
     }
 
@@ -2322,7 +2519,13 @@
 
     function bindActions() {
       document.getElementById("download-brief-btn").addEventListener("click", downloadBriefZip);
-      document.getElementById("generate-btn").addEventListener("click", generateWithGemini);
+      document.getElementById("generate-btn").addEventListener("click", function() {
+        generateWithGemini({ mode: "initial" });
+      });
+      document.getElementById("edit-answers-btn").addEventListener("click", scrollToAnswersForEdit);
+      document.getElementById("regenerate-btn").addEventListener("click", function() {
+        generateWithGemini({ mode: "regenerate" });
+      });
       document.getElementById("preview-style-btn").addEventListener("click", openStylePreview);
       document.getElementById("tally-btn").addEventListener("click", openTally);
       document.getElementById("download-design-btn").addEventListener("click", downloadDesignZip);

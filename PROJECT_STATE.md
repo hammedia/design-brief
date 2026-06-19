@@ -1,6 +1,6 @@
 # Design Brief Form Project State
 
-Last updated: 2026-06-10
+Last updated: 2026-06-19
 
 ## 현재 프로젝트 역할
 
@@ -33,6 +33,16 @@ Last updated: 2026-06-10
 - 생성된 `DESIGN.md`에서 `VISUAL_STYLE_SHEET.html` 초안 생성
 - `DESIGN.md`가 있는 카드뉴스와 없는 카드뉴스를 비교하는 샘플 페이지 제공
 - Tally 연락처 폼으로 이동하는 선택 버튼 제공
+
+### 2026-06-19 업그레이드 (커밋됨)
+
+- **첫 화면 개편:** 들어오면 결과 예시 + 신뢰 문구 + 익명 고객 한 줄을 먼저 보여주고, "무료로 디자인 가이드 만들기" CTA로 질문지를 같은 페이지에서 펼침. 매번 접힘으로 시작(localStorage 미저장).
+- **HAM UI 색 역할 표준:** 블루(#7EB5E8)=강조·링크, 그린(#00704A)=실행 버튼, 레드(#CC0000)=경고. 토큰 `assets/css/ham-tokens.css`(원본은 `05_HAM_DesignStudio/design-system/ham-tokens.css`).
+- **결과 예시 교체:** 기준 A(차분·신뢰) / 기준 B(또렷·강조) / 기준 없음(제각각) — 상세 페이지(`card-news-samples.html`)도 일치.
+- **생성 프롬프트 업그레이드:** 색은 역할 이름으로 중립화(답변에 없는 블루/그린 기본값 금지), 절제는 금지목록 대신 원리+이유, 분리 순서(여백→위계→대비→선/그림자), 채널 정체성 유지.
+- **대비 안전 스타일시트 변환기:** 배경 휘도로 글자색 자동 선택(4.5 필수 / 7 목표), 다크 테마 처리, 밝은 버튼엔 검은 글자. `buildVisualStyleSheetFromDesign`.
+- **미리보기 루프(Part 2):** 같은 페이지 iframe 미리보기 + [답 수정하기]/[다시 생성하기] 분리. "다시 생성 = Gemini 한 번 더 사용" 안내. 로딩 중 이전 미리보기 유지 후 교체. (Gemini 경로 한정.)
+- 근거: getdesign.md 70여 개 딥스터디 + 3중 리서치(`05_HAM_DesignStudio/reference/external-design-md/_getdesignmd_study/`).
 
 ## public_easy 모드 상태
 
@@ -69,17 +79,18 @@ Last updated: 2026-06-10
 - 고객 답변, 연락처, API 키가 repo에 남지 않도록 한다.
 - GitHub Pages 공개 URL과 Pages source를 임의로 바꾸지 않는다.
 
-## 다음 작업 후보
+## 다음 작업 후보 (2026-06-19 기준)
 
-- README, PROJECT_STATE, CONVENTIONS 간 운영 기준 중복을 주기적으로 정리한다.
-- 고급 질문 안내 문구가 공개 사용자에게 충분히 쉬운지 검토한다.
-- `DESIGN.md` 출력 품질 테스트는 quota 테스트와 분리해 기록한다.
-- 모드별 질문 스키마가 안정되면 공개 폼과 내부 생성기 분리 여부를 재검토한다.
-- Tally 폼 문항은 다운로드 조건이 되지 않는 범위에서만 개선을 검토한다.
+- **(우선) 09 push** — 위 업그레이드는 로컬 커밋만. push 시 공개 사이트 반영. 배포 전 일반 브라우저 ZIP 다운로드 스모크 테스트 권장.
+- **질문지 업그레이드** — 딥스터디 통찰을 추려 쉬운 질문 1~2개 추가(예: "첫 시선의 주인공?", "버튼이 또렷/차분?"). 제안 → 검토 → 적용. *질문은 핵심이라 신중히.*
+- **변환기 보강** — YAML/frontmatter 성격 강한 DESIGN.md 색 파싱 약점(스터디서 발견) 보강.
+- **기준 한 줄 문서화** — 브랜드 잠긴 색은 AA(4.5) 충족, 도구 생성물은 7:1 목표로 구분.
+- **완성 시 포지셔닝·홍보 적용** — `docs/working/20260619_완성시_포지셔닝_홍보_적용메모.md` 참조(루프·질문지 반영 후).
+- (보류) Part 2-B: Gemini가 스타일시트 "모양"까지 생성 — 지금은 변환기로 충분, 나중 검토.
 
 ## 건드리면 안 되는 범위
 
-- `index.html` 기능, Gemini API 호출 코드, ZIP 생성 로직
+- Gemini API 호출 코드, ZIP 생성 로직, 변환기 대비 안전 로직 (index.html의 UI·문구·미리보기는 햄PD 승인 후 변경 가능 — 2026-06-19 업그레이드처럼)
 - Tally URL
 - GitHub Pages 공개 URL과 Pages source
 - `questions.json`, `parse_answers.py`, `generate_design_md.py`
